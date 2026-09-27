@@ -179,6 +179,46 @@ table.raw.edit td.first{position:static}
 .addrow{margin:8px 18px 14px;border:1px dashed #94a3b8;background:#fff;border-radius:8px;padding:6px 14px;cursor:pointer;color:#475569;font-size:13px}
 .addrow:hover{border-color:var(--pri);color:var(--pri)}
 .edithint{background:#fffbea;border:1px solid #f5d565;color:#7a5b00;border-radius:10px;padding:9px 14px;margin-bottom:12px;font-size:13px;line-height:1.6}
+select.ie{border:1px dashed #94a3b8;background:#fff;border-radius:6px;padding:2px 3px;font-size:13px;max-width:100%;cursor:pointer;color:inherit;font-family:inherit;margin:1px 2px 1px 0}
+select.ie:hover{border-color:var(--pri);border-style:solid}
+select.ie.time{background:#eef2ff;color:#1e3a8a;font-weight:600;border-color:#c7d2fe}
+select.ie.role{background:#f3e8ff;color:#7e22ce;border-color:#e9d5ff}
+select.ie.day{background:#1e3a8a;color:#fff;border:none;font-size:12px;font-weight:600}
+select.ie.lop{background:#1e3a8a;color:#fff;border:none;font-size:12px;font-weight:600}
+select.ie.go{background:#dcfce7;color:#166534;border-color:#86efac;font-size:12px;font-weight:600}
+select.ie.food{width:100%;background:#fff}
+.ie-t{border-bottom:1px dashed #10b981;padding:0 2px;outline:none;min-width:40px;display:inline-block;white-space:pre-wrap;cursor:text;border-radius:3px}
+.ie-t:hover{background:#f0fdf4}
+.ie-t:empty:before{content:attr(data-ph);color:#9ca3af;font-weight:400}
+.ie-t:focus{background:#fffbea;border-bottom:2px solid #f59e0b}
+.ie-t.bold{font-weight:700;font-size:15px}
+.ie-t.cname{font-weight:700;font-size:16px;color:#1e3a8a}
+.ie-t.wide{display:inline}
+.ie-t.lopt{font-weight:600;color:#1e3a8a}
+.ie-b{border:1px solid #cbd5e1;background:#fff;border-radius:6px;padding:1px 7px;font-size:12px;cursor:pointer;margin-left:3px;color:var(--txt);font-family:inherit}
+.ie-b:hover{background:#f1f5f9}
+.ie-b.del:hover{background:#fee2e2;border-color:#fca5a5}
+.ie-b.add{border-style:dashed;color:#047857;border-color:#6ee7b7;background:#f0fdf4;padding:5px 11px;margin:8px 6px 0 0;font-weight:600}
+.ie-b.add:hover{background:#d1fae5}
+.ie-b.right{margin-left:auto}
+.ie-b.x{border:none;background:none;padding:0 0 0 5px;color:#15803d}
+.cls.edit ul{padding-left:16px}
+.cls.edit li{margin-bottom:4px}
+.cls.edit li>span.lirow{display:flex;gap:4px;align-items:center}
+.cls.edit li select.ie{flex:1 1 auto;min-width:0;width:100%}
+.cls.edit li select.ie.time{flex:0 0 108px;width:108px}
+.cls.edit li .ie-b{flex:0 0 auto}
+body.admin .weeks{grid-template-columns:repeat(2,1fr)}
+.list select.ie.time{max-width:130px}
+.list select.ie.role{max-width:150px}
+.cls .cn{flex-wrap:wrap}
+body.admin .classes{grid-template-columns:repeat(auto-fill,minmax(390px,1fr))}
+@media(max-width:640px){body.admin .classes{grid-template-columns:1fr}}
+li.addli{list-style:none;margin-left:-18px}
+tr.addrow2 td{border-bottom:none;padding-top:10px}
+.mbox label.fl{display:block;font-size:12.5px;color:var(--mut);margin:2px 0 4px;font-weight:600}
+.mbox select,.mbox textarea{width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:9px;font-size:15px;margin-bottom:10px;font-family:inherit}
+.mbox textarea{min-height:80px;resize:vertical}
 kbd{background:#fff;border:1px solid #d6c27a;border-radius:4px;padding:0 5px;font-size:12px}
 </style>
 <header>
@@ -256,16 +296,18 @@ function colIdx(hdr,keys,fallback){
   for(const k of keys){const i=h.findIndex(x=>x.startsWith(k)); if(i>=0) return i;}
   return fallback;
 }
+function findName(sheets,keys){const names=Object.keys(sheets);for(const k of keys){const n=names.find(x=>norm(x).includes(k)); if(n) return n;} return null;}
 const cell=(r,i)=>i>=0&&i<r.length?r[i]:'';
 
 function parseAll(sheets){
-  const out={persons:[],lich:{},general_notes:[],classes:[],giasu:[],duadon:[],grab:[],food:{},suppliers:[],fancy:[],missing:[]};
+  const out={sheet:{},persons:[],lich:{},general_notes:[],classes:[],giasu:[],duadon:[],grab:[],food:{},suppliers:[],fancy:[],missing:[]};
   DKEYS.forEach(d=>{out.lich[d]=[];out.food[d]=[];});
   const classDays={};
   const addCD=(c,d)=>{c=one(c).toUpperCase(); if(!c)return; (classDays[c]=classDays[c]||new Set()).add(d);};
 
   // ---------- LỊCH TG
-  const L=cleanRows(findSheet(sheets,["lichtg","lich"]));
+  out.sheet.lich=findName(sheets,["lichtg","lich"]);
+  const L=cleanRows(out.sheet.lich?sheets[out.sheet.lich]:null);
   if(L.length){
     const hi=Math.max(0,L.findIndex(r=>norm(r[0])==="buoi"));
     const hdr=L[hi];
@@ -283,53 +325,61 @@ function parseAll(sheets){
       const row=L[r], d=dayOf(row[0]);
       if(!d){ if(row[0]) out.general_notes.push(row[0]); continue; }
       let [day,ses]=d; if(day==="CN"&&!ses) ses="Chiều";
-      const work=[],free=[];
+      const work=[],free=[],freeCols=[];
       persons.forEach(p=>{const v=row[p.col]; if(!v)return;
-        if(one(v).toLowerCase()==="rảnh"){free.push(p.name);return;}
+        if(one(v).toLowerCase()==="rảnh"){free.push(p.name);freeCols.push(p.col);return;}
         const lines=v.split('\n').map(x=>x.trim()).filter(Boolean);
-        work.push({name:p.name,time:lines[0],role:lines.slice(1).join(' · ')});});
-      const notes=noteCol>=0?row[noteCol].split('\n').map(x=>x.replace(/^\(\d+\)\s*/,'').trim()).filter(Boolean):[];
+        work.push({name:p.name,time:lines[0],role:lines.slice(1).join(' · '),c:p.col});});
+      const noteItems=[]; if(noteCol>=0) row[noteCol].split('\n').forEach((x,li)=>{const m=x.match(/^\s*(\(\d+\)\s*)?(.*)$/); const tx=(m[2]||'').trim(); if(tx) noteItems.push({text:tx,line:li,prefix:m[1]||''});});
+      const notes=noteItems.map(n=>n.text);
       const ca2=ca2Col>=0?row[ca2Col].split('\n').map(x=>x.trim()).filter(Boolean):[];
-      out.lich[day].push({session:ses,notes,work,free,ca2});
+      out.lich[day].push({session:ses,notes,noteItems,work,free,freeCols,ca2,r,noteCol,ca2Col});
     }
-    out.persons=persons.map(({name,year,phone})=>({name,year,phone}));
+    out.persons=persons.map(({name,year,phone,col})=>({name,year,phone,col}));
   } else out.missing.push("Lịch TG");
 
   // ---------- TGCM
-  const T=cleanRows(findSheet(sheets,["tgcm"]));
+  out.sheet.tgcm=findName(sheets,["tgcm"]);
+  const T=cleanRows(out.sheet.tgcm?sheets[out.sheet.tgcm]:null);
   if(T.length){
     const offs=[]; T[0].forEach((h,j)=>{if(norm(h)==="lop")offs.push(j);});
     if(!offs.length) offs.push(0);
     const start=T.findIndex((r,i)=>i>0&&dayOf(r[offs[0]+1]))>0?1:1;
-    offs.forEach(off=>{
+    const W=T[0].length;
+    offs.forEach((off,oi)=>{
+      const end=offs[oi+1]??W;
       let cur=null,sub=null;
       for(let i=start;i<T.length;i++){
         const c=[0,1,2,3,4,5,6].map(k=>cell(T[i],off+k).trim());
         let [c0,n1,t1,,n2,t2]=c; t1=t1.replace(/:$/,'').trim(); t2=t2.replace(/:$/,'').trim();
         if(norm(n1)==="tentrogiang") continue;
         if(![c0,n1,t1,n2,t2].some(Boolean)){sub=null;continue;}
-        if(c0&&dayOf(n1)){cur={name:c0,note:[],b1:{day:dayOf(n1),tg:[]},b2:{day:n2?dayOf(n2):null,tg:[]},subs:[],extra:[]};out.classes.push(cur);sub=null;continue;}
+        if(c0&&dayOf(n1)){cur={off,end,r:i,lastRow:i,lastMain:i,name:c0,note:[],b1:{day:dayOf(n1),tg:[]},b2:{day:n2?dayOf(n2):null,tg:[]},subs:[],extra:[]};out.classes.push(cur);sub=null;continue;}
         if(!cur) continue;
         if(c0&&c0.startsWith("(")){cur.note.push(c0);c0="";}
         if(c0&&!n1&&!n2) continue;
-        if(c0){sub={name:c0,b1:[],b2:[]};cur.subs.push(sub);
-          if(n1)sub.b1.push({name:n1,time:t1}); if(n2)sub.b2.push({name:n2,time:t2}); continue;}
+        cur.lastRow=i;
+        if(c0){sub={name:c0,r:i,b1:[],b2:[]};cur.subs.push(sub);
+          if(n1)sub.b1.push({name:n1,time:t1,r:i}); if(n2)sub.b2.push({name:n2,time:t2,r:i}); continue;}
         if(/^dạy lại|^day lai/i.test(n1)){const m=n1.toLowerCase().match(/(sáng cn|chiều cn|cn|thứ\s*\d)/);
-          cur.extra.push({label:n1,day:m?dayOf(m[1]):null,tg:n2?[n2]:[]});continue;}
+          cur.extra.push({label:n1,day:m?dayOf(m[1]):null,tg:n2?[n2]:[],r:i});continue;}
         if(/^bận/i.test(n2)&&!n1){cur.note.push(one(n2));continue;}
-        if(n1)(sub?sub.b1:cur.b1.tg).push({name:n1,time:t1});
-        if(n2)(sub?sub.b2:cur.b2.tg).push({name:n2,time:t2});
+        if(!sub) cur.lastMain=i;
+        if(n1)(sub?sub.b1:cur.b1.tg).push({name:n1,time:t1,r:i});
+        if(n2)(sub?sub.b2:cur.b2.tg).push({name:n2,time:t2,r:i});
       }
     });
     out.classes.forEach(c=>["b1","b2"].forEach(b=>{if(c[b].day){addCD(c.name,c[b].day[0]);addCD(c.name.split('-')[0],c[b].day[0]);}}));
   } else out.missing.push("TGCM");
 
   // ---------- GIA SƯ
-  const G=cleanRows(findSheet(sheets,["giasu"]));
+  out.sheet.giasu=findName(sheets,["giasu"]);
+  const G=cleanRows(out.sheet.giasu?sheets[out.sheet.giasu]:null);
   if(G.length){
     const h=G[0], I={hs:colIdx(h,["hocsinh"],0),lop:colIdx(h,["lop"],1),lich:colIdx(h,["lich"],2),gs:colIdx(h,["giasu"],3),vt:colIdx(h,["vitri"],4),ql:colIdx(h,["quanly"],5)};
-    G.slice(1).forEach(r=>{ if(!r.some(Boolean))return;
-      const x=Object.fromEntries(Object.entries(I).map(([k,i])=>[k,cell(r,i)]));
+    out.gsCols=I;
+    G.forEach((r,ri)=>{ if(ri===0||!r.some(Boolean))return;
+      const x=Object.fromEntries(Object.entries(I).map(([k,i])=>[k,cell(r,i)])); x.r=ri;
       const lc=x.lich.toLowerCase(), days=new Set();
       for(const m of lc.matchAll(/thứ\s*([2-7])\s+(?:từ|lúc|học)/g)) days.add("T"+m[1]);
       if(!days.size){const m=lc.split('\n')[0].match(/thứ\s*([2-7])/); if(m) days.add("T"+m[1]);}
@@ -340,14 +390,15 @@ function parseAll(sheets){
   } else out.missing.push("Gia sư");
 
   // ---------- ĐƯA ĐÓN
-  const DD=cleanRows(findSheet(sheets,["duadon","dondua","duadon"]));
+  out.sheet.dd=findName(sheets,["duadon","dondua"]);
+  const DD=cleanRows(out.sheet.dd?sheets[out.sheet.dd]:null);
   const cd=k=>classDays[one(k).toUpperCase()]||new Set();
   if(DD.length){
     const h=DD[0], I={hs:colIdx(h,["hocsinh"],0),lop:colIdx(h,["lop"],1),lich:colIdx(h,["lich"],2),chieu:colIdx(h,["sochieu","chieu"],3),ph:colIdx(h,["phuhuynh"],4),dt:colIdx(h,["dt","sdt","dienthoai"],5),dc:colIdx(h,["diachi"],6)};
-    let mode="fixed";
-    DD.slice(1).forEach(r=>{ if(!r.some(Boolean))return;
-      if(/^đặt grab|^dat grab/i.test(r[0])){mode="grab";return;}
-      const x=Object.fromEntries(Object.entries(I).map(([k,i])=>[k,cell(r,i)]));
+    let mode="fixed"; out.ddCols=I; out.lastFixedRow=0; out.grabRow=-1;
+    DD.forEach((r,ri)=>{ if(ri===0||!r.some(Boolean))return;
+      if(/^đặt grab|^dat grab/i.test(r[0])){mode="grab";out.grabRow=ri;return;}
+      const x=Object.fromEntries(Object.entries(I).map(([k,i])=>[k,cell(r,i)])); x.r=ri; if(mode==="fixed") out.lastFixedRow=ri;
       const lops=x.lop.split(/\s*\+\s*/).filter(Boolean);
       if(mode==="grab"){
         const per={}; lops.forEach(l=>cd(l).forEach(d=>(per[d]=per[d]||[]).push(l)));
@@ -365,14 +416,15 @@ function parseAll(sheets){
   } else out.missing.push("Đưa đón");
 
   // ---------- ĐỒ ĂN
-  const A=cleanRows(findSheet(sheets,["doan"]));
+  out.sheet.food=findName(sheets,["doan"]);
+  const A=cleanRows(out.sheet.food?sheets[out.sheet.food]:null);
   if(A.length){
     const cols=[]; A[0].forEach((h,j)=>{const d=dayOf(h); if(d) cols.push([j,d]);});
-    const gioRow=A.find(r=>norm(r[0]).startsWith("giolay"))||[];
+    const gioIdx=A.findIndex(r=>norm(r[0]).startsWith("giolay")), gioRow=A[gioIdx]||[];
     const lopRow=A[1]||[];
-    const weekRows=A.filter(r=>/^tuần/i.test(r[0]));
+    const weekIdx=A.map((r,i)=>/^tuần/i.test(r[0])?i:-1).filter(i=>i>=0), weekRows=weekIdx.map(i=>A[i]);
     cols.forEach(([j,[day,ses]])=>{
-      out.food[day].push({session:ses,lop:lopRow[j]||'',gio:one((gioRow[j]||'').replace(/-\s*\n/g,'-').replace(/\n/g,'')),
+      out.food[day].push({c:j,gioR:gioIdx,weekR:weekIdx,session:ses,lop:lopRow[j]||'',gio:one((gioRow[j]||'').replace(/-\s*\n/g,'-').replace(/\n/g,'')),
         menu:weekRows.map(r=>({tuan:r[0],mon:one(r[j])}))});
     });
     const si=A.findIndex(r=>r.some(x=>norm(x)==="dt")&&r.some(x=>norm(x)==="gia"));
@@ -483,7 +535,7 @@ const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"
 const tel=h=>h.replace(/(0\d{2}[.\s]?\d{3,4}[.\s]?\d{3,4})/g,m=>{const n=m.replace(/[.\s]/g,'');return /^\d{10}$/.test(n)?`<a class="tel" href="tel:${n}">📞 ${m}</a>`:m;});
 const t=s=>tel(esc(s)).replace(/\n/g,'<br>');
 const sess=s=>s?`<span class="sess">${s}</span>`:'';
-const card=(icon,title,n,body,cls='',ek='')=>`<div class="card ${cls}"><h3>${icon} ${title}${ek?`<button class="editlink admin-only" data-edit="${ek}">✏️ Sửa</button>`:''}${n!==null?`<span class="n">${n}</span>`:''}</h3><div class="body">${body}</div></div>`;
+const card=(icon,title,n,body,cls='',ek='')=>`<div class="card ${cls}"><h3>${icon} ${title}${ek?`<button class="editlink admin-only" data-edit="${ek}" title="Sửa dạng bảng như Excel">📑 Dạng bảng</button>`:''}${n!==null?`<span class="n">${n}</span>`:''}</h3><div class="body">${body}</div></div>`;
 const none=s=>`<div class="none">${s}</div>`;
 
 function renderNav(){
@@ -493,75 +545,154 @@ function renderNav(){
   q.classList.toggle('hidden',view!=='raw');
 }
 
+// ================= INLINE EDIT HELPERS =================
+let REG=[];
+const reg=o=>{REG.push(o);return REG.length-1;};
+const DAY_OPTS=['Thứ 2','Thứ 3','Thứ 4','Thứ 5','Thứ 6','Thứ 7','CN','Sáng CN','Chiều CN'];
+const CHIEU_OPTS=['Cả đi và về','Chỉ đưa đi học','Chỉ đưa lúc về'];
+const DAY_LABEL={T2:'Thứ 2',T3:'Thứ 3',T4:'Thứ 4',T5:'Thứ 5',T6:'Thứ 6',T7:'Thứ 7',CN:'Chủ nhật'};
+// <select> gắn với 1 ô trong sheet (src) — hoặc gọi hàm pick(val)
+function SEL(src,value,options,o={}){
+  const k=reg({type:o.pick?'pick':'set',src,pick:o.pick,label:o.label||'Nhập giá trị',custom:o.custom!==false});
+  const opts=[...new Set(options.filter(Boolean))];
+  if(value&&!opts.includes(value)) opts.unshift(value);
+  return `<select class="ie ${o.cls||''}" data-k="${k}" title="${esc(o.label||'')}"><option value="">${esc(o.ph||'—')}</option>`
+    +opts.map(v=>`<option value="${esc(v)}"${v===value?' selected':''}>${esc(v.replace(/\n/g,' · '))}</option>`).join('')
+    +(o.custom!==false?'<option value="__custom">✍️ Nhập khác…</option>':'')+'</select>';
+}
+// chữ sửa trực tiếp (bấm vào để gõ)
+function TXT(src,value,o={}){const k=reg({type:'set',src,orig:value||''});return `<span class="ie-t ${o.cls||''}" contenteditable="true" spellcheck="false" data-k="${k}" data-ph="${esc(o.ph||'…')}">${esc(value||'')}</span>`;}
+function BTN(label,fn,o={}){const k=reg({type:'act',fn});return `<button class="ie-b ${o.cls||''}" data-k="${k}" title="${esc(o.title||'')}">${label}</button>`;}
+const sortTimes=a=>[...a].filter(Boolean).sort((x,y)=>(parseFloat(x.replace('h','.'))||99)-(parseFloat(y.replace('h','.'))||99)||x.localeCompare(y));
+function optionLists(){
+  const tg=new Set(),times=new Set(),roles=new Set(),classes=new Set(),foods=new Set(),lt=new Set(),gs=new Set(),gio=new Set();
+  D.classes.forEach(c=>{classes.add(c.name);
+    ['b1','b2'].forEach(b=>c[b].tg.forEach(x=>{tg.add(x.name);times.add(x.time);}));
+    c.subs.forEach(s=>[...s.b1,...s.b2].forEach(x=>{tg.add(x.name);times.add(x.time);}));
+    c.extra.forEach(e=>e.tg.forEach(n=>tg.add(n)));});
+  DKEYS.forEach(d=>{(D.lich[d]||[]).forEach(s=>{s.work.forEach(w=>{lt.add(w.time);if(w.role)roles.add(w.role);});s.ca2.forEach(c=>classes.add(c));});
+    (D.food[d]||[]).forEach(f=>{gio.add(f.gio);f.menu.forEach(m=>foods.add(m.mon));});});
+  D.giasu.forEach(g=>{gs.add(g.gs);if(g.lop)classes.add(g.lop);});
+  D.duadon.concat(D.grab).forEach(x=>{if(x.lop)classes.add(x.lop);});
+  D.suppliers.forEach(s=>{});
+  ['QLC','QL 158','SVIP'].forEach(r=>roles.add(r));
+  const S=a=>[...a].filter(Boolean).sort((x,y)=>x.localeCompare(y,'vi'));
+  return {tg:S(tg),times:sortTimes(times),roles:S(roles),classes:S(classes),foods:S(foods),lt:sortTimes(lt),gs:S(new Set([...gs,...tg])),gio:sortTimes(gio)};
+}
+
 // ================= DAY VIEW =================
 function renderDay(day){
+  REG=[];
+  const A=isAdmin, O=A?optionLists():null;
   const name=DAYS.find(d=>d[0]===day)[1];
   const lich=D.lich[day]||[];
   const personInfo=Object.fromEntries(D.persons.map(p=>[p.name,p]));
-  // Notes
-  const notes=lich.flatMap(s=>s.notes.map(n=>sess(day==='CN'?s.session:'')+t(n)));
-  // TG quản lý
-  let tgRows='',nWork=0,free=[],ca2=[];
+  const SL=D.sheet.lich, ST=D.sheet.tgcm, SG=D.sheet.giasu, SD=D.sheet.dd, SF=D.sheet.food;
+
+  // ---------- Việc cần chú ý
+  let notesHtml='';
+  lich.forEach(s=>s.noteItems.forEach(n=>{
+    notesHtml+=A?`<li>${day==='CN'?sess(s.session):''}${TXT({s:SL,r:s.r,c:s.noteCol,line:n.line,prefix:n.prefix},n.text,{cls:'wide'})} ${BTN('🗑',()=>editCell({s:SL,r:s.r,c:s.noteCol,line:n.line},''),{cls:'del',title:'Xoá việc này'})}</li>`
+                :`<li>${sess(day==='CN'?s.session:'')}${t(n.text)}</li>`;}));
+  if(A&&lich.length) notesHtml+=`<li class="addli">`+lich.map(s=>BTN(`＋ Thêm việc${day==='CN'?' ('+s.session+')':''}`,()=>formModal('＋ Thêm việc cần chú ý – '+name,[{key:'v',label:'Nội dung',type:'textarea'}],v=>{if(!v.v.trim())return;
+      editCell({s:SL,r:s.r,c:s.noteCol,fn:cur=>cur?cur+'\n'+v.v.trim():v.v.trim()});}),{cls:'add'})).join(' ')+`</li>`;
+
+  // ---------- TG quản lý
+  let tgRows='',nWork=0,freeHtml='',ca2Html='';
   lich.forEach(s=>{
-    s.work.forEach(w=>{nWork++;const p=personInfo[w.name]||{};
-      tgRows+=`<tr><td class="who">${esc(w.name)}${p.phone?`<small>${tel(esc(p.phone))}</small>`:''}</td><td>${day==='CN'?sess(s.session):''}<span class="time">${esc(w.time)}</span></td><td>${w.role?w.role.split(' · ').map(r=>`<span class="role">${esc(r)}</span>`).join(''):''}</td></tr>`;});
-    free.push(...s.free.map(f=>(day==='CN'?s.session+': ':'')+f)); ca2.push(...s.ca2);
+    s.work.forEach(w=>{nWork++;const p=personInfo[w.name]||{}; const src={s:SL,r:s.r,c:w.c};
+      tgRows+=`<tr><td class="who">${esc(w.name)}${p.phone?`<small>${tel(esc(p.phone))}</small>`:''}</td><td>${day==='CN'?sess(s.session):''}`
+        +(A?SEL({...src,part:'time'},w.time,O.lt,{ph:'— giờ —',label:'Giờ làm của '+w.name,cls:'time'}):`<span class="time">${esc(w.time)}</span>`)+`</td><td>`
+        +(A?SEL({...src,part:'role'},w.role,O.roles,{ph:'— việc —',label:'Nhiệm vụ của '+w.name,cls:'role'})+' '+BTN('Rảnh',()=>editCell(src,'Rảnh'),{title:'Đổi thành Rảnh'})+BTN('🗑',()=>editCell(src,''),{cls:'del',title:'Bỏ khỏi ngày này'})
+            :(w.role?w.role.split(' · ').map(r=>`<span class="role">${esc(r)}</span>`).join(''):''))+`</td></tr>`;});
+    s.free.forEach((f,i)=>{freeHtml+=`<span class="chip free">${day==='CN'?esc(s.session)+': ':''}${esc(f)}${A?BTN('×',()=>editCell({s:SL,r:s.r,c:s.freeCols[i]},''),{cls:'x',title:'Bỏ'}):''}</span>`;});
+    if(A){
+      const used=new Set([...s.work.map(w=>w.c),...s.freeCols]);
+      const rest=D.persons.filter(p=>!used.has(p.col)).map(p=>p.name);
+      if(rest.length){
+        tgRows+=`<tr class="addrow2"><td colspan="3">${day==='CN'?sess(s.session):''}`
+          +SEL(null,'',rest,{ph:'＋ Thêm người đi làm…',custom:false,pick:v=>{const p=D.persons.find(x=>x.name===v); if(p) editCell({s:SL,r:s.r,c:p.col},(O.lt[0]||'17h00-20h30')+'\nQLC');}})+' '
+          +SEL(null,'',rest,{ph:'＋ Đánh dấu rảnh…',custom:false,pick:v=>{const p=D.persons.find(x=>x.name===v); if(p) editCell({s:SL,r:s.r,c:p.col},'Rảnh');}})+`</td></tr>`;
+      }
+    }
+    if(A&&s.ca2Col>=0) ca2Html+=`<div class="sub">Ca 2 ${day==='CN'?'('+esc(s.session)+')':''} – cách nhau bằng dấu phẩy</div>`+TXT({s:SL,r:s.r,c:s.ca2Col,fn:(cur,v)=>v.split(/\s*,\s*/).filter(Boolean).join('\n'),show:s.ca2.join(', ')},s.ca2.join(', '),{cls:'wide',ph:'VD: WIN, ATHENA'});
+    else if(s.ca2.length) ca2Html+=`<div class="sub">Ca 2 (theo Lịch TG)</div>`+s.ca2.map(c=>`<span class="chip ca2">${esc(c)}</span>`).join('');
   });
   let tgBody=tgRows?`<table class="list">${tgRows}</table>`:none('Không có trợ giảng quản lý đi làm');
-  if(free.length) tgBody+=`<div class="sub">Rảnh</div>`+free.map(f=>`<span class="chip free">${esc(f)}</span>`).join('');
+  if(freeHtml) tgBody+=`<div class="sub">Rảnh</div>`+freeHtml;
 
-  // Classes (TGCM)
+  // ---------- Lớp học (TGCM)
   let clsHtml='',nCls=0;
   D.classes.forEach(c=>{
     [['b1','Buổi 1'],['b2','Buổi 2']].forEach(([b,label],bi)=>{
       const bd=c[b]; if(!bd.day||bd.day[0]!==day) return; nCls++;
-      const subs=c.subs.map(s=>{const l=s[b];return l.length?`<div class="grp"><b>${esc(s.name)}:</b> ${l.map(x=>esc(x.name)+(x.time?` <span class="time">${esc(x.time)}</span>`:'')).join(', ')}</div>`:''}).join('');
-      clsHtml+=`<div class="cls"><div class="cn"><b>${esc(c.name)}</b> <span class="b ${bi?'b2':''}">${label}</span>${sess(bd.day[1])}</div>`
-        +(bd.tg.length?`<ul>${bd.tg.map(x=>`<li>${esc(x.name)}${x.time?` <span class="time">${esc(x.time)}</span>`:''}</li>`).join('')}</ul>`:none('Chưa xếp trợ giảng'))
+      const cN=c.off+(bi?4:1), cT=cN+1;
+      if(!A){
+        const subs=c.subs.map(s=>{const l=s[b];return l.length?`<div class="grp"><b>${esc(s.name)}:</b> ${l.map(x=>esc(x.name)+(x.time?` <span class="time">${esc(x.time)}</span>`:'')).join(', ')}</div>`:''}).join('');
+        clsHtml+=`<div class="cls"><div class="cn"><b>${esc(c.name)}</b> <span class="b ${bi?'b2':''}">${label}</span>${sess(bd.day[1])}</div>`
+          +(bd.tg.length?`<ul>${bd.tg.map(x=>`<li>${esc(x.name)}${x.time?` <span class="time">${esc(x.time)}</span>`:''}</li>`).join('')}</ul>`:none('Chưa xếp trợ giảng'))
+          +subs+c.note.map(n=>`<div class="nt">⚠ ${esc(n)}</div>`).join('')+`</div>`;
+        return;
+      }
+      const tgLi=x=>`<li><span class="lirow">${SEL({s:ST,r:x.r,c:cN},x.name,O.tg,{ph:'— trợ giảng —',label:'Tên trợ giảng'})}${SEL({s:ST,r:x.r,c:cT},x.time,O.times,{ph:'— giờ —',label:'Giờ',cls:'time'})}${BTN('🗑',()=>removeTG(c,x.r,cN,cT),{cls:'del',title:'Bỏ trợ giảng này'})}</span></li>`;
+      const subs=c.subs.map(s=>`<div class="grp"><b>${esc(s.name)}:</b>${s[b].length?`<ul>${s[b].map(tgLi).join('')}</ul>`:' <i>—</i>'}</div>`).join('');
+      clsHtml+=`<div class="cls edit"><div class="cn">${TXT({s:ST,r:c.r,c:c.off},c.name,{cls:'cname'})}<span class="b ${bi?'b2':''}">${label}</span>`
+        +SEL({s:ST,r:c.r,c:cN},PKG.sheets[ST][c.r][cN],DAY_OPTS,{custom:false,label:'Đổi ngày học của '+label,cls:'day'})
+        +BTN('🗑',()=>removeClass(c),{cls:'del right',title:'Xoá cả lớp '+c.name})+`</div>`
+        +`<ul>${bd.tg.map(tgLi).join('')}</ul>`
+        +BTN('＋ Thêm trợ giảng',()=>addTG(c,bi,name),{cls:'add'})
         +subs+c.note.map(n=>`<div class="nt">⚠ ${esc(n)}</div>`).join('')+`</div>`;
     });
     c.extra.forEach(e=>{ if(!e.day||e.day[0]!==day) return; nCls++;
-      clsHtml+=`<div class="cls"><div class="cn"><b>${esc(c.name)}</b> <span class="b ex">${esc(e.label)}</span></div><ul>${e.tg.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`;});
+      clsHtml+=`<div class="cls"><div class="cn"><b>${esc(c.name)}</b> <span class="b ex">${esc(e.label)}</span></div><ul>`
+        +(A?`<li>${SEL({s:ST,r:e.r,c:c.off+4},e.tg[0]||'',O.tg,{ph:'— trợ giảng —'})}</li>`:e.tg.map(x=>`<li>${esc(x)}</li>`).join(''))+`</ul></div>`;});
   });
   let clsBody=clsHtml?`<div class="classes">${clsHtml}</div>`:none('Không có lớp nào trong bảng TGCM');
-  if(ca2.length) clsBody+=`<div class="sub">Ca 2 (theo Lịch TG)</div>`+ca2.map(c=>`<span class="chip ca2">${esc(c)}</span>`).join('');
+  if(A&&ST) clsBody+=`<div style="margin-top:10px">${BTN('＋ Thêm lớp mới',()=>addClass(day),{cls:'add'})}</div>`;
+  clsBody+=ca2Html;
 
-  // Đưa đón
-  let dd='',nDD=0;
-  D.duadon.filter(x=>x.days.includes(day)).forEach(x=>{nDD++;
-    dd+=`<div class="item"><div class="t"><b>${esc(x.hs)}</b><span class="lop">${esc(x.lop)}</span><span class="tag go">${esc(x.chieu)}</span>${x.guess?'<span class="tag warn" title="Sheet ghi: '+esc(x.lich)+'">ngày suy theo lịch lớp</span>':''}</div>
+  // ---------- Đưa đón
+  let dd='',nDD=0; const I=D.ddCols||{};
+  D.duadon.filter(x=>x.days.includes(day)).forEach(x=>{nDD++; const S=k=>({s:SD,r:x.r,c:I[k]});
+    if(A) dd+=`<div class="item"><div class="t">${TXT(S('hs'),x.hs,{cls:'bold',ph:'Tên học sinh'})}${SEL(S('lop'),x.lop,O.classes,{ph:'— lớp —',cls:'lop'})}${SEL(S('chieu'),x.chieu,CHIEU_OPTS,{ph:'— số chiều —',cls:'go'})}${BTN('🗑',()=>delRow(SD,x.r,x.hs),{cls:'del right',title:'Xoá học sinh này'})}</div>
+      <div class="kv"><span>Lịch</span><span>${TXT(S('lich'),x.lich,{ph:'VD: Thứ 2 và Thứ 4 học lúc 18h15-19h45'})}</span><span>Phụ huynh</span><span>${TXT(S('ph'),x.ph)}</span><span>ĐT</span><span>${TXT(S('dt'),x.dt)}</span><span>Địa chỉ</span><span>${TXT(S('dc'),x.dc)}</span></div></div>`;
+    else dd+=`<div class="item"><div class="t"><b>${esc(x.hs)}</b><span class="lop">${esc(x.lop)}</span><span class="tag go">${esc(x.chieu)}</span>${x.guess?'<span class="tag warn" title="Sheet ghi: '+esc(x.lich)+'">ngày suy theo lịch lớp</span>':''}</div>
       <div class="kv"><span>Lịch</span><span>${t(x.lich)}</span>${x.ph?`<span>Phụ huynh</span><span>${t(x.ph)}</span>`:''}${x.dt?`<span>ĐT</span><span>${t(x.dt)}</span>`:''}<span>Địa chỉ</span><span>${t(x.dc)}</span></div></div>`;});
-  D.grab.filter(x=>x.days.includes(day)).forEach(x=>{nDD++;
-    dd+=`<div class="item"><div class="t"><b>${esc(x.hs)}</b><span class="lop">${esc(x.lop)}</span><span class="tag grab">🚕 Đặt Grab khi PH gọi</span></div>
-      <div class="kv"><span>Lớp học hôm nay</span><span>${esc(x.byday[day].join(', '))}</span><span>Địa chỉ</span><span>${t(x.dc)}</span></div></div>`;});
+  D.grab.filter(x=>x.days.includes(day)).forEach(x=>{nDD++; const S=k=>({s:SD,r:x.r,c:I[k]});
+    dd+=`<div class="item"><div class="t">${A?TXT(S('hs'),x.hs,{cls:'bold'})+SEL(S('lop'),x.lop,O.classes,{cls:'lop'}):`<b>${esc(x.hs)}</b><span class="lop">${esc(x.lop)}</span>`}<span class="tag grab">🚕 Đặt Grab khi PH gọi</span>${A?BTN('🗑',()=>delRow(SD,x.r,x.hs),{cls:'del right'}):''}</div>
+      <div class="kv"><span>Lớp học hôm nay</span><span>${esc(x.byday[day].join(', '))}</span><span>Địa chỉ</span><span>${A?TXT(S('dc'),x.dc):t(x.dc)}</span></div></div>`;});
   if(!dd) dd=none('Không có lịch đưa đón');
+  if(A&&SD) dd+=BTN('＋ Thêm học sinh đưa đón '+name,()=>addDD(day,O),{cls:'add'});
 
-  // Gia sư
-  let gs='',nGS=0;
+  // ---------- Gia sư
+  let gs='',nGS=0; const J=D.gsCols||{};
   D.giasu.forEach(x=>{
     const main_=x.days.includes(day);
     const m=[...x.lich.matchAll(/buổi thứ\s*(\d)/gi)].map(a=>'T'+a[1]);
     const replaced=m.includes(day);
-    if(!main_&&!replaced) return; nGS++;
-    gs+=`<div class="item"><div class="t"><b>${t(x.hs.split('\n')[0])}</b>${x.lop?`<span class="lop">${esc(x.lop)}</span>`:''}${replaced&&!main_?'<span class="tag warn">Nghỉ buổi lớp hôm nay → học GS thay</span>':''}</div>
+    if(!main_&&!replaced) return; nGS++; const S=k=>({s:SG,r:x.r,c:J[k]});
+    if(A) gs+=`<div class="item"><div class="t">${TXT(S('hs'),x.hs,{cls:'bold',ph:'Tên học sinh'})}${SEL(S('lop'),x.lop,O.classes,{ph:'— lớp —',cls:'lop'})}${replaced&&!main_?'<span class="tag warn">Nghỉ buổi lớp hôm nay → học GS thay</span>':''}${BTN('🗑',()=>delRow(SG,x.r,x.hs),{cls:'del right'})}</div>
+      <div class="kv"><span>Lịch</span><span>${TXT(S('lich'),x.lich,{ph:'VD: Học GS thứ 2 từ 18h30-20h00'})}</span><span>Gia sư</span><span>${SEL(S('gs'),x.gs,O.gs,{ph:'— gia sư —'})}</span><span>Vị trí</span><span>${TXT(S('vt'),x.vt)}</span><span>Quản lý</span><span>${TXT(S('ql'),x.ql)}</span></div></div>`;
+    else gs+=`<div class="item"><div class="t"><b>${t(x.hs.split('\n')[0])}</b>${x.lop?`<span class="lop">${esc(x.lop)}</span>`:''}${replaced&&!main_?'<span class="tag warn">Nghỉ buổi lớp hôm nay → học GS thay</span>':''}</div>
       <div class="kv">${x.hs.includes('\n')?`<span>Học sinh</span><span>${t(x.hs.split('\n').slice(1).join('\n'))}</span>`:''}<span>Lịch</span><span>${t(x.lich)}</span><span>Gia sư</span><span>${esc(x.gs)}</span><span>Vị trí</span><span>${t(x.vt)}</span><span>Quản lý</span><span>${t(x.ql)}</span></div></div>`;});
   if(!gs) gs=none('Không có lịch gia sư');
+  if(A&&SG) gs+=BTN('＋ Thêm lịch gia sư '+name,()=>addGS(day,O),{cls:'add'});
 
-  // Đồ ăn
+  // ---------- Đồ ăn
   let fd='';
   (D.food[day]||[]).forEach(f=>{
     const items=[...new Set(f.menu.map(m=>m.mon))];
     const shops=D.suppliers.filter(s=>items.some(i=>matchFood(i,s.ten)));
-    fd+=`<div class="food"><div class="t">${sess(f.session)}Lớp <span class="lop">${esc(f.lop)}</span> &nbsp;Giờ lấy: <span class="time">${esc(f.gio||'—')}</span></div>
-      <div class="weeks">${f.menu.map((m,i)=>`<div class="wk ${i+1===weekOfMonth?'cur':''}"><small>${esc(m.tuan)}${i+1===weekOfMonth?' (tuần này?)':''}</small>${esc(m.mon)}</div>`).join('')}</div>
+    fd+=`<div class="food"><div class="t">${sess(f.session)}Lớp ${A?TXT({s:SF,r:1,c:f.c},f.lop,{cls:'lopt'}):`<span class="lop">${esc(f.lop)}</span>`} &nbsp;Giờ lấy: ${A&&f.gioR>=0?SEL({s:SF,r:f.gioR,c:f.c},f.gio,O.gio,{ph:'— giờ —',cls:'time'}):`<span class="time">${esc(f.gio||'—')}</span>`}</div>
+      <div class="weeks">${f.menu.map((m,i)=>`<div class="wk ${i+1===weekOfMonth?'cur':''}"><small>${esc(m.tuan)}${i+1===weekOfMonth?' (tuần này?)':''}</small>${A?SEL({s:SF,r:f.weekR[i],c:f.c},m.mon,O.foods,{ph:'— món —',cls:'food'}):esc(m.mon)}</div>`).join('')}</div>
       ${shops.length?`<div class="shop">🛒 ${shops.map(s=>`<b>${esc(s.ten)}</b>${s.gia?' – '+esc(s.gia):''}${s.dl?' ('+esc(s.dl)+')':''}${s.phat?' – phát '+esc(s.phat):''}${s.dt?' '+tel(esc(s.dt)):''}`).join('<br>🛒 ')}</div>`:''}</div>`;});
   if(!fd) fd=none('Không phát đồ ăn');
 
-  main.innerHTML=`<div class="adminbar admin-only">✏️ Bạn đang ở <b>chế độ sửa</b>. Bấm <b>✏️ Sửa</b> trên từng khung hoặc vào <b>📑 Bảng gốc</b> để sửa trực tiếp từng ô – mọi thay đổi tự lưu lên máy chủ.</div><div class="dayhead"><h2>${name}</h2>
+  main.innerHTML=`<div class="adminbar admin-only">✏️ <b>Chế độ sửa:</b> chọn trong các ô <b>▾</b> hoặc bấm vào chữ có gạch chân để sửa trực tiếp. Mọi thay đổi <b>tự lưu</b> và mọi người thấy ngay. ${'<button class="ie-b" data-undo>↶ Hoàn tác</button>'}</div><div class="dayhead"><h2>${name}</h2>
      <div class="stat"><b>${nCls}</b>buổi lớp</div><div class="stat"><b>${nWork}</b>TG quản lý</div>
      <div class="stat"><b>${nDD}</b>đưa đón</div><div class="stat"><b>${nGS}</b>gia sư</div><div class="stat"><b>${(D.food[day]||[]).length}</b>suất đồ ăn</div></div>
    <div class="grid">
-     ${notes.length?card('⚠️','Việc cần chú ý',null,`<ul>${notes.map(n=>`<li>${n}</li>`).join('')}</ul>`,'warn full','lichtg'):''}
+     ${notesHtml?card('⚠️','Việc cần chú ý',null,`<ul>${notesHtml}</ul>`,'warn full','lichtg'):''}
      ${card('📚','Lớp học & trợ giảng chuyên môn',nCls,clsBody,'full','tgcm')}
      ${card('🧑‍💼','Trợ giảng quản lý (Lịch TG)',nWork,tgBody,'','lichtg')}
      ${card('🚗','Đưa đón',nDD,dd,'','duadon')}
@@ -569,6 +700,7 @@ function renderDay(day){
      ${card('🍪','Đồ ăn',(D.food[day]||[]).length,fd,'','doan')}
    </div>`;
 }
+
 function matchFood(item,shop){
   const a=item.toLowerCase(), b=shop.toLowerCase();
   return [['thịt xiên'],['khoai'],['bông lan'],['xúc'],['su kem'],['caramen']].some(([k])=>a.includes(k)&&b.includes(k));
@@ -669,6 +801,7 @@ document.addEventListener('keydown',e=>{if(e.target===q||e.target.isContentEdita
 
 // ---- cell editing
 const cellVal=el=>el.innerText.replace(/\u00a0/g,' ').replace(/\n+$/,'').replace(/^\n+/,'');
+main.addEventListener('focusin',e=>{ if(e.target.closest&&e.target.closest('td[contenteditable]')&&isAdmin) pushUndo(); });
 main.addEventListener('input',e=>{
   const el=e.target.closest('td[contenteditable]'); if(!el||!isAdmin) return;
   const name=sheetNames()[+el.dataset.si], r=+el.dataset.r, c=+el.dataset.c;
@@ -676,8 +809,8 @@ main.addEventListener('input',e=>{
   rows[r][c]=cellVal(el); markDirty();
 });
 main.addEventListener('focusout',e=>{
-  if(!e.target.closest||!e.target.closest('td[contenteditable]')) return;
-  setTimeout(()=>{ if(document.activeElement&&document.activeElement.isContentEditable) return;
+  if(!e.target.closest||!e.target.closest('td[contenteditable],.ie-t,select.ie')) return;
+  setTimeout(()=>{ if(document.activeElement&&(document.activeElement.isContentEditable||document.activeElement.tagName==='SELECT')) return;
     if(pendingRemote&&!dirty){const p=pendingRemote;pendingRemote=null;applyRemote(p);} },50);
 });
 main.addEventListener('keydown',e=>{
@@ -690,7 +823,7 @@ main.addEventListener('keydown',e=>{
     if(nx&&nx.children[idx]&&nx.children[idx].isContentEditable){focusCell(nx.children[idx]);} else el.blur();}
 });
 main.addEventListener('paste',e=>{
-  const el=e.target.closest&&e.target.closest('td[contenteditable]'); if(!el) return;
+  const el=e.target.closest&&e.target.closest('[contenteditable]'); if(!el) return;
   e.preventDefault(); const txt=(e.clipboardData||window.clipboardData).getData('text/plain').replace(/\r\n?/g,'\n');
   document.execCommand('insertText',false,txt);
 });
@@ -698,21 +831,135 @@ function focusCell(td){td.focus();const r=document.createRange();r.selectNodeCon
 function rowOp(op,spec){
   if(!isAdmin) return;
   const [si,r,c0,c1]=spec.split(',').map(Number); const name=sheetNames()[si]; const rows=PKG.sheets[name];
-  const w=rows[0].length, full=c0===0&&c1>=w, empty=()=>Array(w).fill('');
   if(op==='del'){
     const row=rows[r]; const has=row&&row.slice(c0,c1).some(Boolean);
     if(has&&!confirm('Xoá dòng '+(r+1)+'?\n\n'+row.slice(c0,c1).filter(Boolean).join(' | ').slice(0,200))) return;
-    if(full) rows.splice(r,1);
-    else { for(let i=r;i<rows.length-1;i++) for(let c=c0;c<c1;c++) rows[i][c]=rows[i+1][c]; for(let c=c0;c<c1;c++) rows[rows.length-1][c]=''; }
-  }else{
-    if(full) rows.splice(r+1,0,empty());
-    else { if(rows[rows.length-1].slice(c0,c1).some(Boolean)||r+1>=rows.length) rows.push(empty());
-      for(let i=rows.length-1;i>r+1;i--) for(let c=c0;c<c1;c++) rows[i][c]=rows[i-1][c];
-      for(let c=c0;c<c1;c++) rows[r+1][c]=''; }
-  }
-  const y=window.scrollY; markDirty(); renderRaw(); window.scrollTo(0,y);
+    pushUndo(); deleteRowIn(name,r,c0,c1);
+  }else{ pushUndo(); insertRowIn(name,r,c0,c1); }
+  const y=window.scrollY; markDirty(); reparse(); renderRaw(); window.scrollTo(0,y);
   if(op==='ins'){const tds=[...main.querySelectorAll(`td[contenteditable][data-si="${si}"][data-r="${r+1}"]`)].filter(td=>+td.dataset.c>=c0&&+td.dataset.c<c1); const td=(norm(name).includes('tgcm')&&tds[1])?tds[1]:tds[0]; if(td) focusCell(td);}
 }
+
+// ---- row helpers
+function insertRowIn(s,after,c0,c1){
+  const rows=PKG.sheets[s], w=rows[0].length, full=c0===0&&c1>=w;
+  if(full){rows.splice(after+1,0,Array(w).fill(''));return after+1;}
+  if(after+1>=rows.length||rows[rows.length-1].slice(c0,c1).some(Boolean)) rows.push(Array(w).fill(''));
+  for(let i=rows.length-1;i>after+1;i--) for(let c=c0;c<c1;c++) rows[i][c]=rows[i-1][c];
+  for(let c=c0;c<c1;c++) rows[after+1][c]='';
+  return after+1;
+}
+function deleteRowIn(s,r,c0,c1){
+  const rows=PKG.sheets[s], w=rows[0].length;
+  if(c0===0&&c1>=w){rows.splice(r,1);return;}
+  for(let i=r;i<rows.length-1;i++) for(let c=c0;c<c1;c++) rows[i][c]=rows[i+1][c];
+  for(let c=c0;c<c1;c++) rows[rows.length-1][c]='';
+}
+// ---- inline edit (day view)
+let UNDO=[];
+function pushUndo(){UNDO.push(JSON.stringify(PKG.sheets)); if(UNDO.length>40) UNDO.shift();}
+function undo(){ if(!UNDO.length){toast('Không còn thao tác nào để hoàn tác');return;} PKG.sheets=JSON.parse(UNDO.pop()); afterEdit(); toast('↶ Đã hoàn tác'); }
+function afterEdit(){ markDirty(); reparse(); const y=window.scrollY; render(); window.scrollTo(0,y); }
+function setSrc(src,val){
+  const rows=PKG.sheets[src.s]; if(!rows||!rows.length) return;
+  const w=rows[0].length;
+  while(rows.length<=src.r) rows.push(Array(w).fill(''));
+  if(src.c>=w) rows.forEach(r=>{while(r.length<=src.c) r.push('');});
+  const cur=rows[src.r][src.c]||''; let v;
+  if(src.fn) v=src.fn(cur,val);
+  else if(src.part==='time'){const L=cur.split('\n'); L[0]=val; v=L.join('\n');}
+  else if(src.part==='role'){v=[cur.split('\n')[0],...String(val).split(/\s*·\s*|\n/).map(x=>x.trim()).filter(Boolean)].join('\n');}
+  else if(src.line!=null){const L=cur.split('\n'); if(val==='') L.splice(src.line,1); else L[src.line]=(src.prefix||'')+val; v=L.join('\n');}
+  else v=val;
+  rows[src.r][src.c]=String(v??'').trim();
+}
+function editCell(src,val){ if(!isAdmin||!src||!src.s) return; pushUndo(); setSrc(src,val); afterEdit(); }
+function removeTG(c,r,cN,cT){
+  const ST=D.sheet.tgcm, rows=PKG.sheets[ST]; pushUndo();
+  rows[r][cN]=''; rows[r][cT]='';
+  if(!rows[r].slice(c.off,c.end).some(Boolean)) deleteRowIn(ST,r,c.off,c.end);
+  afterEdit();
+}
+function addTG(c,bi){
+  const O=optionLists(), ST=D.sheet.tgcm;
+  formModal('＋ Thêm trợ giảng – '+c.name+' ('+(bi?'Buổi 2':'Buổi 1')+')',
+    [{key:'n',label:'Trợ giảng (chọn hoặc gõ tên mới)',type:'combo',options:O.tg},{key:'t',label:'Giờ (không bắt buộc)',type:'combo',options:O.times}],
+    v=>{ if(!v.n.trim()) return; pushUndo(); const rows=PKG.sheets[ST], cN=c.off+(bi?4:1); let r=-1;
+      for(let i=c.r+1;i<=c.lastMain;i++) if(!rows[i][c.off]&&!rows[i][cN]){r=i;break;}
+      if(r<0) r=insertRowIn(ST,c.lastMain,c.off,c.end);
+      rows[r][cN]=v.n.trim(); rows[r][cN+1]=v.t.trim(); afterEdit(); toast('✅ Đã thêm '+esc(v.n)+' vào lớp '+esc(c.name)); });
+}
+function removeClass(c){
+  if(!confirm('Xoá cả lớp "'+c.name+'" (cả Buổi 1 và Buổi 2) khỏi bảng TGCM?')) return;
+  pushUndo(); for(let r=c.lastRow;r>=c.r;r--) deleteRowIn(D.sheet.tgcm,r,c.off,c.end); afterEdit(); toast('🗑 Đã xoá lớp '+esc(c.name)+' – bấm ↶ Hoàn tác nếu nhầm');
+}
+function addClass(day){
+  const O=optionLists(), ST=D.sheet.tgcm, def=day==='CN'?'CN':DAY_LABEL[day];
+  formModal('＋ Thêm lớp mới',[{key:'n',label:'Tên lớp',type:'text'},{key:'d1',label:'Buổi 1',type:'select',options:DAY_OPTS,value:def},
+    {key:'d2',label:'Buổi 2',type:'select',options:['',...DAY_OPTS],value:''},{key:'tg',label:'Trợ giảng đầu tiên (không bắt buộc)',type:'combo',options:O.tg}],
+    v=>{ if(!v.n.trim()) return; pushUndo(); const rows=PKG.sheets[ST], w=rows[0].length;
+      const offs=[]; rows[0].forEach((h,j)=>{if(norm(h)==='lop')offs.push(j);}); const g=offs.length?offs[offs.length-1]:0, end=w;
+      let last=0; rows.forEach((r,i)=>{if(r.slice(g,end).some(Boolean)) last=i;});
+      const tr=last+2; while(rows.length<=tr+1) rows.push(Array(w).fill(''));
+      rows[tr][g]=v.n.trim(); rows[tr][g+1]=v.d1; if(g+4<w) rows[tr][g+4]=v.d2;
+      if(v.tg.trim()){ rows[tr+1][g+1]=v.tg.trim(); if(v.d2&&g+4<w) rows[tr+1][g+4]=v.tg.trim(); }
+      afterEdit(); toast('✅ Đã thêm lớp '+esc(v.n)); });
+}
+function delRow(s,r,label){ if(!confirm('Xoá "'+String(label).split('\n')[0]+'"?')) return; pushUndo(); PKG.sheets[s].splice(r,1); afterEdit(); toast('🗑 Đã xoá – bấm ↶ Hoàn tác nếu nhầm'); }
+function addDD(day,O){
+  const SD=D.sheet.dd, I=D.ddCols;
+  formModal('＋ Thêm học sinh đưa đón – '+DAY_LABEL[day],[{key:'hs',label:'Học sinh',type:'text'},{key:'lop',label:'Lớp',type:'combo',options:O.classes},
+    {key:'gio',label:'Giờ học',type:'text',value:'18h00-19h30'},{key:'chieu',label:'Số chiều',type:'select',options:CHIEU_OPTS,value:CHIEU_OPTS[0]},
+    {key:'ph',label:'Phụ huynh',type:'text'},{key:'dt',label:'Điện thoại',type:'text'},{key:'dc',label:'Địa chỉ',type:'textarea'}],
+    v=>{ if(!v.hs.trim()) return; pushUndo(); const rows=PKG.sheets[SD], row=Array(rows[0].length).fill('');
+      const set=(k,val)=>{if(I[k]>=0&&I[k]<row.length) row[I[k]]=val;};
+      set('hs',v.hs.trim()); set('lop',v.lop.trim()); set('lich',DAY_LABEL[day]+' học lúc\n'+v.gio.trim()); set('chieu',v.chieu); set('ph',v.ph.trim()); set('dt',v.dt.trim()); set('dc',v.dc.trim());
+      rows.splice((D.lastFixedRow||0)+1,0,row); afterEdit(); toast('✅ Đã thêm '+esc(v.hs)); });
+}
+function addGS(day,O){
+  const SG=D.sheet.giasu, J=D.gsCols;
+  formModal('＋ Thêm lịch gia sư – '+DAY_LABEL[day],[{key:'hs',label:'Học sinh',type:'text'},{key:'lop',label:'Lớp',type:'combo',options:O.classes},
+    {key:'gio',label:'Giờ học',type:'text',value:'18h00-19h30'},{key:'gs',label:'Gia sư',type:'combo',options:O.gs},{key:'vt',label:'Vị trí',type:'text'},{key:'ql',label:'Quản lý / ghi chú',type:'textarea'}],
+    v=>{ if(!v.hs.trim()) return; pushUndo(); const rows=PKG.sheets[SG], row=Array(rows[0].length).fill('');
+      const set=(k,val)=>{if(J[k]>=0&&J[k]<row.length) row[J[k]]=val;};
+      set('hs',v.hs.trim()); set('lop',v.lop.trim()); set('lich',day==='CN'?'Học GS sáng CN: '+v.gio.trim():'Học GS '+DAY_LABEL[day].toLowerCase()+' từ '+v.gio.trim()); set('gs',v.gs.trim()); set('vt',v.vt.trim()); set('ql',v.ql.trim());
+      let last=0; rows.forEach((r,i)=>{if(r.some(Boolean)) last=i;}); rows.splice(last+1,0,row); afterEdit(); toast('✅ Đã thêm '+esc(v.hs)); });
+}
+let dlN=0;
+function formModal(title,fields,onOk){
+  const html=fields.map(f=>{const id='ff_'+f.key; let inp;
+    if(f.type==='select') inp=`<select id="${id}">${f.options.map(o=>`<option value="${esc(o)}"${o===(f.value||'')?' selected':''}>${esc(o||'— không —')}</option>`).join('')}</select>`;
+    else if(f.type==='textarea') inp=`<textarea id="${id}">${esc(f.value||'')}</textarea>`;
+    else if(f.type==='combo'){const dl='dl'+(++dlN); inp=`<input id="${id}" list="${dl}" value="${esc(f.value||'')}" placeholder="Bấm để chọn hoặc gõ…" autocomplete="off"><datalist id="${dl}">${f.options.map(o=>`<option value="${esc(o)}">`).join('')}</datalist>`;}
+    else inp=`<input id="${id}" value="${esc(f.value||'')}" autocomplete="off">`;
+    return `<label class="fl" for="${id}">${esc(f.label)}</label>${inp}`;}).join('');
+  openModal(`<h3>${esc(title)}</h3><form id="fm">${html}<div class="row"><button type="button" class="mbtn g" data-close>Huỷ</button><button class="mbtn p">Lưu</button></div></form>`);
+  document.getElementById('fm').onsubmit=ev=>{ev.preventDefault(); const v={}; fields.forEach(f=>v[f.key]=document.getElementById('ff_'+f.key).value||''); closeModal(); onOk(v);};
+}
+main.addEventListener('change',e=>{
+  const el=e.target.closest('select.ie[data-k]'); if(!el||!isAdmin) return;
+  const R=REG[+el.dataset.k]; if(!R) return; const v=el.value;
+  if(v==='__custom'){ formModal(R.label||'Nhập giá trị',[{key:'v',label:'Giá trị mới',type:'text',value:''}],x=>{ if(R.type==='pick') R.pick(x.v.trim()); else editCell(R.src,x.v.trim()); }); render(); return; }
+  if(R.type==='pick'){ if(v) R.pick(v); else render(); return; }
+  editCell(R.src,v);
+});
+main.addEventListener('focusout',e=>{
+  const el=e.target.closest&&e.target.closest('.ie-t[data-k]'); if(!el||!isAdmin) return;
+  const R=REG[+el.dataset.k]; if(!R) return; const v=cellVal(el);
+  if(v!==R.orig){ R.orig=v; setTimeout(()=>editCell(R.src,v),0); }
+});
+main.addEventListener('keydown',e=>{
+  const el=e.target.closest&&e.target.closest('.ie-t[data-k]'); if(!el) return;
+  if(e.key==='Enter'&&(e.altKey||e.shiftKey)){e.preventDefault();document.execCommand('insertLineBreak');return;}
+  if(e.key==='Enter'){e.preventDefault();el.blur();}
+  if(e.key==='Escape'){const R=REG[+el.dataset.k]; el.textContent=R?R.orig:el.textContent; el.blur();}
+});
+main.addEventListener('click',e=>{
+  const u=e.target.closest('[data-undo]'); if(u){undo();return;}
+  const b=e.target.closest('button.ie-b[data-k]'); if(!b||!isAdmin) return;
+  const R=REG[+b.dataset.k]; if(R&&R.fn) R.fn();
+});
+document.addEventListener('keydown',e=>{ if(isAdmin&&(e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'&&!e.target.isContentEditable&&!/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)&&!modal.classList.contains('on')){e.preventDefault();undo();} });
 
 // ---- saving
 let saveT;
@@ -905,7 +1152,7 @@ window.onFbData=(data,md)=>{
     firstData=false; return;
   }
   if(md&&md.hasPendingWrites) return;
-  if(dirty||saving||(document.activeElement&&document.activeElement.isContentEditable)){ pendingRemote=data; }
+  const ae=document.activeElement; if(dirty||saving||(ae&&(ae.isContentEditable||(ae.tagName==='SELECT'&&main.contains(ae))))){ pendingRemote=data; }
   else applyRemote(data);
   if(!dirty&&!saving) setStatus(isAdmin?'✏️ Chế độ sửa · đã đồng bộ':'☁️ Trực tuyến','ok');
   firstData=false;
@@ -953,5 +1200,5 @@ try{
   F.onSnapshot(ref,s=>window.onFbData(s.exists()?s.data():null,s.metadata),e=>window.onFbError(e));
 }catch(e){ window.onFbError(e); }
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a4177625ade69d7d',t:'MTc5MDQ4MDE1OQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a41785de0cb0e2f9',t:'MTc5MDQ4MDgwMw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>

@@ -234,6 +234,7 @@ kbd{background:#fff;border:1px solid #d6c27a;border-radius:4px;padding:0 5px;fon
           <div class="who">Đang ở chế độ sửa</div>
           <button data-act="export">⬇️ Xuất ra file Excel</button>
           <button data-act="history">🕘 Lịch sử & khôi phục</button>
+          <button data-act="tglist">👥 Danh sách trợ giảng (dropdown)</button>
           <button data-act="pw">🔑 Đổi mật khẩu</button>
           <button data-act="logout">🚪 Đăng xuất (thoát chế độ sửa)</button>
         </div>
@@ -440,6 +441,16 @@ function parseAll(sheets){
     }
   } else out.missing.push("Đồ ăn");
 
+  // ---------- DANH SÁCH TRỢ GIẢNG (sheet tuỳ chọn, VD "DS Trợ giảng", "Danh sách TG")
+  out.tgSheetList=[];
+  const dsName=Object.keys(sheets).find(n=>{const k=norm(n);return k.includes('danhsach')||k.startsWith('dstg')||k.startsWith('dstrogiang')||k==='trogiang';});
+  if(dsName){
+    const R=cleanRows(sheets[dsName]);
+    let col=0; const h=(R[0]||[]).map(norm); const hi=h.findIndex(x=>x.includes('ten')||x.includes('trogiang')||x.includes('hoten'));
+    if(hi>=0) col=hi;
+    R.forEach((r,i)=>{const v=one(r[col]); if(!v) return; if(i===0&&hi>=0) return; if(/^(stt|tên|họ tên|trợ giảng)$/i.test(v)) return; out.tgSheetList.push(v);});
+    out.tgSheet=dsName;
+  }
   return out;
 }
 
@@ -570,6 +581,7 @@ function optionLists(){
     ['b1','b2'].forEach(b=>c[b].tg.forEach(x=>{tg.add(x.name);times.add(x.time);}));
     c.subs.forEach(s=>[...s.b1,...s.b2].forEach(x=>{tg.add(x.name);times.add(x.time);}));
     c.extra.forEach(e=>e.tg.forEach(n=>tg.add(n)));});
+  (D.tgSheetList||[]).forEach(n=>tg.add(n)); (typeof TG_EXTRA!=='undefined'?TG_EXTRA:[]).forEach(n=>tg.add(n));
   DKEYS.forEach(d=>{(D.lich[d]||[]).forEach(s=>{s.work.forEach(w=>{lt.add(w.time);if(w.role)roles.add(w.role);});s.ca2.forEach(c=>classes.add(c));});
     (D.food[d]||[]).forEach(f=>{gio.add(f.gio);f.menu.forEach(m=>foods.add(m.mon));});});
   D.giasu.forEach(g=>{gs.add(g.gs);if(g.lop)classes.add(g.lop);});
@@ -1056,8 +1068,26 @@ menu.addEventListener('click',async e=>{
   if(a==='export') exportExcel();
   if(a==='logout'){ if(dirty) await saveNow(); setAdmin(false); toast('👋 Đã thoát chế độ sửa'); }
   if(a==='pw') pwModal();
+  if(a==='tglist') tgListModal();
   if(a==='history') historyModal();
 });
+let TG_EXTRA=[];
+function tgListModal(){
+  const fromData=new Set(); D.classes.forEach(c=>{['b1','b2'].forEach(b=>c[b].tg.forEach(x=>fromData.add(x.name))); c.subs.forEach(s=>[...s.b1,...s.b2].forEach(x=>fromData.add(x.name)));});
+  const auto=[...fromData].sort((a,b)=>a.localeCompare(b,'vi'));
+  openModal(`<h3>👥 Danh sách trợ giảng</h3>
+    <p>Dropdown tự lấy <b>${auto.length} trợ giảng</b> đang có trong bảng TGCM${D.tgSheetList&&D.tgSheetList.length?` và <b>${D.tgSheetList.length}</b> tên trong sheet "${esc(D.tgSheet)}"`:''}. 
+    Thêm ở ô dưới những trợ giảng <b>chưa được xếp lớp</b> để họ luôn có trong dropdown (mỗi dòng 1 tên).</p>
+    <form id="tf"><label class="fl">Trợ giảng thêm (mỗi dòng một tên)</label><textarea id="tgx" style="min-height:140px">${esc(TG_EXTRA.join('\n'))}</textarea>
+    <details style="margin:-4px 0 10px;font-size:13px;color:var(--mut)"><summary>Xem ${auto.length} tên đang lấy tự động</summary><div style="line-height:1.7;margin-top:6px">${auto.map(esc).join(' · ')}</div></details>
+    <div class="merr" id="terr"></div><div class="row"><button type="button" class="mbtn g" data-close>Huỷ</button><button class="mbtn p" id="tbtn">Lưu danh sách</button></div></form>`,true);
+  document.getElementById('tf').onsubmit=async ev=>{ev.preventDefault();
+    const list=[...new Set(document.getElementById('tgx').value.split('\n').map(x=>x.trim()).filter(Boolean))];
+    if(!window.FB){document.getElementById('terr').textContent='Chưa kết nối máy chủ.';return;}
+    document.getElementById('tbtn').disabled=true;
+    try{await FB.setTgExtra(list); TG_EXTRA=list; closeModal(); render(); toast('✅ Đã lưu '+list.length+' trợ giảng thêm vào dropdown');}
+    catch(e){document.getElementById('terr').textContent=fbErr(e);document.getElementById('tbtn').disabled=false;}};
+}
 function pwModal(){
   openModal(`<h3>🔑 Đổi mật khẩu</h3><p>Mật khẩu mới áp dụng cho <b>tất cả mọi người</b> (được lưu dạng mã hoá trên máy chủ).</p>
    <form id="pf"><input id="o" type="password" placeholder="Mật khẩu hiện tại" autocomplete="current-password"><input id="n1" type="password" placeholder="Mật khẩu mới (≥ 4 ký tự)" autocomplete="new-password"><input id="n2" type="password" placeholder="Nhập lại mật khẩu mới" autocomplete="new-password">
@@ -1116,6 +1146,7 @@ async function handleFiles(files){
       }
     }
   }catch(e){ toast('❌ Không đọc được file: '+esc(e.message||String(e)),true); return; }
+  const tgBefore=new Set(optionLists().tg);
   const test=parseAll(sheets);
   if(test.missing.length===5){ toast('❌ Không tìm thấy sheet nào phù hợp (Lịch TG, TGCM, Đưa đón, Gia sư, Đồ ăn).<br>Sheet trong file: '+esc(Object.keys(sheets).join(', ')),true); return; }
   if(!confirm('Thay TOÀN BỘ dữ liệu hiện tại bằng file "'+names.join(', ')+'"?\n(Bản hiện tại sẽ được lưu vào Lịch sử để khôi phục nếu cần)')) return;
@@ -1123,7 +1154,8 @@ async function handleFiles(files){
   const dm=names.join(' ').match(/(\d{1,2}\.\d{1,2}\.\d{2,4})/);
   loadData({sheets,meta:{file:names.join(', '),date:dm?dm[1]:''}}); render();
   dirty=true; const ok=await saveNow();
-  if(ok) toast('✅ Đã cập nhật từ <b>'+esc(names.join(', '))+'</b> và lưu lên máy chủ.'+(test.missing.length?'<br>⚠ Không thấy sheet: '+test.missing.join(', '):''), test.missing.length>0);
+  const tgNew=optionLists().tg.filter(n=>!tgBefore.has(n));
+  if(ok) toast('✅ Đã cập nhật từ <b>'+esc(names.join(', '))+'</b> và lưu lên máy chủ.'+(tgNew.length?'<br>👥 Trợ giảng mới đã thêm vào dropdown: <b>'+esc(tgNew.join(', '))+'</b>':'')+(test.missing.length?'<br>⚠ Không thấy sheet: '+test.missing.join(', '):''), test.missing.length>0);
 }
 document.getElementById('file').addEventListener('change',e=>{handleFiles(e.target.files);e.target.value='';});
 const dropEl=document.getElementById('drop'); let dragN=0;
@@ -1159,6 +1191,8 @@ window.onFbData=(data,md)=>{
 };
 window.onFbError=e=>{ console.error(e); if(!fbOK) setStatus('⚠️ Ngoại tuyến – đang xem bản lưu trên máy','err'); else toast('⚠️ Lỗi kết nối: '+esc(fbErr(e)),true); };
 window.onFbConfig=cfg=>{
+  const exOld=JSON.stringify(TG_EXTRA); TG_EXTRA=Array.isArray(cfg&&cfg.tgExtra)?cfg.tgExtra:[];
+  if(isAdmin&&exOld!==JSON.stringify(TG_EXTRA)&&view!=='raw'&&!(document.activeElement&&main.contains(document.activeElement))){const y=window.scrollY;render();window.scrollTo(0,y);}
   const h=(cfg&&cfg.pwHash)||DEFAULT_PW_HASH;
   const changed=h!==PW_HASH; PW_HASH=h;
   if(changed&&isAdmin){ let saved=null; try{saved=localStorage.getItem(ADMIN_KEY);}catch(_){}
@@ -1193,12 +1227,13 @@ try{
     save:(json,meta)=>F.setDoc(ref,{data:json,meta:meta||{},updatedAt:F.serverTimestamp()}),
     backup:(json,meta,note)=>F.addDoc(F.collection(db,"lichsu"),{data:json,meta:meta||{},note:note||"",at:F.serverTimestamp()}),
     history:async()=>{const s=await F.getDocs(F.query(F.collection(db,"lichsu"),F.orderBy("at","desc"),F.limit(30)));return s.docs.map(d=>({id:d.id,...d.data()}));},
-    setPw:h=>F.setDoc(cfgRef,{pwHash:h,updatedAt:F.serverTimestamp()},{merge:true})
+    setPw:h=>F.setDoc(cfgRef,{pwHash:h,updatedAt:F.serverTimestamp()},{merge:true}),
+    setTgExtra:list=>F.setDoc(cfgRef,{tgExtra:list,updatedAt:F.serverTimestamp()},{merge:true})
   };
   // Lắng nghe thay đổi theo thời gian thực
   F.onSnapshot(cfgRef,s=>window.onFbConfig(s.exists()?s.data():null),e=>console.warn(e));
   F.onSnapshot(ref,s=>window.onFbData(s.exists()?s.data():null,s.metadata),e=>window.onFbError(e));
 }catch(e){ window.onFbError(e); }
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a41785de0cb0e2f9',t:'MTc5MDQ4MDgwMw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a4178aa24fbfdc87',t:'MTc5MDQ4MDk5OA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>

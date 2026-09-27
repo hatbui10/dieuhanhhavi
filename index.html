@@ -86,12 +86,25 @@ a.tel:hover{text-decoration:underline}
 section{background:var(--card);border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:24px;overflow:hidden}
 section h2{margin:0;padding:14px 18px;font-size:16px;border-bottom:1px solid var(--bd);color:var(--pri);display:flex;justify-content:space-between}
 section h2 span{color:var(--mut);font-weight:400;font-size:12px}
-.wrap{overflow:auto}
-table.raw{border-collapse:separate;border-spacing:0;width:100%;min-width:600px}
+.wrap{overflow-x:auto;border-top:1px solid var(--bd)}
+main.rawall .wrap{max-height:none}
+.cap{padding:10px 18px 8px;font-size:13px;color:var(--mut);font-weight:600;background:#fafbff;border-top:1px solid var(--bd)}
+.cap b{color:#1e3a8a}
+.raw{font-size:var(--rawfs,14px)}
+.raw thead th{position:sticky;top:0;z-index:3}
+main.rawall .raw thead th{position:static}
+.raw td:first-child,.raw th:first-child{position:sticky;left:0;z-index:2;box-shadow:1px 0 0 var(--bd)}
+.raw thead th:first-child{z-index:4}
+.raw td.nw{white-space:nowrap}
+.raw td.note{position:static!important}
+.zoom{margin-left:auto;display:flex;gap:4px;align-items:center;color:var(--mut);font-size:12px}
+.zoom button{min-width:34px}
+table.raw{border-collapse:separate;border-spacing:0;width:100%}
 .raw th,.raw td{border-right:1px solid var(--bd);border-bottom:1px solid var(--bd);padding:7px 10px;vertical-align:top;text-align:left;white-space:pre-line;line-height:1.4}
 .raw thead th{background:#eef2ff;color:#1e3a8a;font-weight:600;text-align:center}
 .raw tbody tr:nth-child(even) td{background:#fafbfe}
 .raw td.first{font-weight:600;background:#f7f9ff!important;color:#1e3a8a}
+.raw tbody td:first-child{background:#fff}
 .raw tr.gap td{padding:3px;background:#f4f6fb!important}
 .raw td.note{background:#fffbea!important;color:#7a5b00;font-style:italic}
 .day{display:inline-block;background:var(--pri2);color:var(--pri);border-radius:6px;padding:1px 8px;font-weight:600;font-size:12.5px}
@@ -113,13 +126,78 @@ mark{background:var(--hl);padding:0 1px;border-radius:2px}
 </style>
 </head>
 <body>
+<style>
+.admin-only{display:none!important}
+body.admin .admin-only{display:inline-flex!important}
+body.admin div.admin-only{display:block!important}
+body.admin .guest-only{display:none!important}
+.status{display:inline-block;margin-left:8px;font-size:12px;padding:2px 9px;border-radius:10px;background:rgba(255,255,255,.15);vertical-align:middle}
+.status.ok{background:#16a34a}.status.warn{background:#f59e0b;color:#111}.status.err{background:#dc2626}.status.busy{background:#0ea5e9}
+.btn.lock{background:#fff;color:#1e3a8a;font-weight:600;border-color:#fff}
+.menuwrap{position:relative}
+.menu{position:absolute;right:0;top:calc(100% + 6px);background:#fff;color:var(--txt);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.25);min-width:230px;padding:6px;display:none;z-index:50}
+.menu.on{display:block}
+.menu button{display:block;width:100%;text-align:left;background:none;border:none;padding:9px 12px;border-radius:7px;cursor:pointer;font-size:14px;color:var(--txt)}
+.menu button:hover{background:var(--pri2)}
+.menu .who{padding:8px 12px;font-size:12px;color:var(--mut);border-bottom:1px solid var(--bd);margin-bottom:4px}
+.adminbar{background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:13.5px}
+.editlink{margin-left:10px;background:#ecfdf5;color:#047857;border:1px solid #6ee7b7;border-radius:7px;padding:2px 9px;font-size:12px;cursor:pointer;font-weight:600}
+.editlink:hover{background:#d1fae5}
+/* modal */
+#modal{position:fixed;inset:0;background:rgba(15,23,42,.55);display:none;align-items:center;justify-content:center;z-index:120;padding:16px}
+#modal.on{display:flex}
+.mbox{background:#fff;border-radius:16px;box-shadow:0 20px 50px rgba(0,0,0,.3);width:100%;max-width:400px;padding:22px 22px 18px;position:relative;max-height:90vh;overflow:auto}
+.mbox.wide{max-width:640px}
+.mbox h3{margin:0 0 6px;font-size:18px;color:#1e3a8a}
+.mbox p{margin:0 0 14px;color:var(--mut);font-size:13.5px;line-height:1.5}
+.mbox input{width:100%;padding:11px 12px;border:1px solid #cbd5e1;border-radius:9px;font-size:15px;margin-bottom:10px;outline:none}
+.mbox input:focus{border-color:var(--pri);box-shadow:0 0 0 3px var(--pri2)}
+.mbox .row{display:flex;gap:8px;justify-content:flex-end;align-items:center;margin-top:6px}
+.mbtn{border:none;border-radius:9px;padding:10px 16px;font-size:14px;cursor:pointer;font-weight:600}
+.mbtn.p{background:var(--pri);color:#fff}.mbtn.p:hover{background:#1e40af}
+.mbtn.g{background:#f1f5f9;color:var(--txt)}
+.mbtn:disabled{opacity:.6;cursor:wait}
+.mx{position:absolute;right:12px;top:10px;border:none;background:none;font-size:22px;cursor:pointer;color:var(--mut)}
+.merr{color:#b91c1c;font-size:13px;min-height:18px;margin-bottom:6px;line-height:1.45}
+.mlink{background:none;border:none;color:var(--pri);cursor:pointer;font-size:13px;padding:0;text-decoration:underline;margin-right:auto}
+.hist{width:100%;border-collapse:collapse;font-size:13.5px}
+.hist td{padding:8px 6px;border-bottom:1px solid var(--bd)}
+/* edit grid */
+table.raw.edit td[contenteditable]{white-space:pre-wrap;min-width:90px;cursor:text;outline:none;background:#fff}
+table.raw.edit td[contenteditable]:hover{background:#f0fdf4}
+table.raw.edit td[contenteditable]:focus{background:#fffbea;box-shadow:inset 0 0 0 2px #f59e0b}
+table.raw.edit tr.h td[contenteditable]{background:#eef2ff;color:#1e3a8a;font-weight:600}
+table.raw.edit td.saved-flash{animation:fl 1s}
+@keyframes fl{from{background:#bbf7d0}to{background:#fff}}
+table.raw.edit td.gut{position:sticky;left:0;z-index:2;background:#f8fafc;color:#94a3b8;font-size:11px;white-space:nowrap;padding:4px 6px;min-width:62px;text-align:right;user-select:none}
+table.raw.edit td.gut button{visibility:hidden;border:none;background:#e2e8f0;border-radius:5px;cursor:pointer;font-size:11px;padding:1px 5px;margin-right:2px}
+table.raw.edit tr:hover td.gut button{visibility:visible}
+table.raw.edit td.gut button.del:hover{background:#fecaca}
+table.raw.edit td.gut button.add:hover{background:#bbf7d0}
+table.raw.edit td:first-child{box-shadow:none}
+table.raw.edit td.first{position:static}
+.addrow{margin:8px 18px 14px;border:1px dashed #94a3b8;background:#fff;border-radius:8px;padding:6px 14px;cursor:pointer;color:#475569;font-size:13px}
+.addrow:hover{border-color:var(--pri);color:var(--pri)}
+.edithint{background:#fffbea;border:1px solid #f5d565;color:#7a5b00;border-radius:10px;padding:9px 14px;margin-bottom:12px;font-size:13px;line-height:1.6}
+kbd{background:#fff;border:1px solid #d6c27a;border-radius:4px;padding:0 5px;font-size:12px}
+</style>
 <header>
   <div class="top">
-    <h1>📋 ĐIỀU HÀNH HÀ VI <small id="upd"></small></h1>
+    <h1>📋 ĐIỀU HÀNH HÀ VI <small id="upd"></small><span id="status" class="status busy">⏳ Đang kết nối…</span></h1>
     <div class="tools">
       <input id="q" type="search" class="hidden" placeholder="🔍 Tìm trong bảng gốc...">
-      <label class="btn up" title="Chọn file Excel (.xlsx/.xls) hoặc các file CSV">📤 Tải file Excel lên<input id="file" type="file" accept=".xlsx,.xlsm,.xls,.csv" multiple hidden></label>
-      <button class="btn" id="reset" title="Quay về dữ liệu gốc đi kèm file HTML">↺ Dữ liệu gốc</button>
+      <button class="btn lock guest-only" id="btnLogin">🔒 Nhập mật khẩu để sửa</button>
+      <label class="btn up admin-only" title="Chọn file Excel (.xlsx/.xls) hoặc các file CSV – sẽ thay toàn bộ dữ liệu và lưu lên máy chủ">📤 Tải file Excel lên<input id="file" type="file" accept=".xlsx,.xlsm,.xls,.csv" multiple hidden></label>
+      <div class="menuwrap admin-only">
+        <button class="btn" id="btnMenu">⚙️ Quản lý ▾</button>
+        <div class="menu" id="menu">
+          <div class="who">Đang ở chế độ sửa</div>
+          <button data-act="export">⬇️ Xuất ra file Excel</button>
+          <button data-act="history">🕘 Lịch sử & khôi phục</button>
+          <button data-act="pw">🔑 Đổi mật khẩu</button>
+          <button data-act="logout">🚪 Đăng xuất (thoát chế độ sửa)</button>
+        </div>
+      </div>
       <button class="btn" onclick="window.print()">🖨 In</button>
     </div>
   </div>
@@ -127,6 +205,7 @@ mark{background:var(--hl);padding:0 1px;border-radius:2px}
 </header>
 <main id="main"></main>
 <div id="drop">📂 Thả file Excel vào đây<small style="font-size:15px;opacity:.8">.xlsx · .xls · .csv</small></div>
+<div id="modal"><div class="mbox" id="mbox"></div></div>
 <div id="toast"></div>
 <script>/*! xlsx.js (C) 2013-present SheetJS -- http://sheetjs.com */
 var XLSX={};function make_xlsx_lib(e){e.version="0.20.3";var r=1200,t=1252;var a;var n=[874,932,936,949,950,1250,1251,1252,1253,1254,1255,1256,1257,1258,1e4];var i={0:1252,1:65001,2:65001,77:1e4,128:932,129:949,130:1361,134:936,136:950,161:1253,162:1254,163:1258,177:1255,178:1256,186:1257,204:1251,222:874,238:1250,255:1252,69:6969};var s=function(e){if(n.indexOf(e)==-1)return;t=i[0]=e};function f(){s(1252)}var l=function(e){r=e;s(e)};function o(){l(1200);f()}function c(e){var r=[];for(var t=0,a=e.length;t<a;++t)r[t]=e.charCodeAt(t);return r}function u(e){var r=[];for(var t=0;t<e.length>>1;++t)r[t]=String.fromCharCode(e.charCodeAt(2*t)+(e.charCodeAt(2*t+1)<<8));return r.join("")}function h(e){var r=[];for(var t=0;t<e.length>>1;++t)r[t]=String.fromCharCode(e[2*t]+(e[2*t+1]<<8));return r.join("")}function d(e){var r=[];for(var t=0;t<e.length>>1;++t)r[t]=String.fromCharCode(e.charCodeAt(2*t+1)+(e.charCodeAt(2*t)<<8));return r.join("")}var v=function(e){var r=e.charCodeAt(0),t=e.charCodeAt(1);if(r==255&&t==254)return u(e.slice(2));if(r==254&&t==255)return d(e.slice(2));if(r==65279)return e.slice(1);return e};var p=function fT(e){return String.fromCharCode(e)};var m=function lT(e){return String.fromCharCode(e)};function b(e){a=e;l=function(e){r=e;s(e)};v=function(e){if(e.charCodeAt(0)===255&&e.charCodeAt(1)===254){return a.utils.decode(1200,c(e.slice(2)))}return e};p=function n(e){if(r===1200)return String.fromCharCode(e);return a.utils.decode(r,[e&255,e>>8])[0]};m=function i(e){return a.utils.decode(t,[e])[0]};ma()}var g=null;var w=true;var k="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";function T(e){var r="";var t=0,a=0,n=0,i=0,s=0,f=0,l=0;for(var o=0;o<e.length;){t=e.charCodeAt(o++);i=t>>2;a=e.charCodeAt(o++);s=(t&3)<<4|a>>4;n=e.charCodeAt(o++);f=(a&15)<<2|n>>6;l=n&63;if(isNaN(a)){f=l=64}else if(isNaN(n)){l=64}r+=k.charAt(i)+k.charAt(s)+k.charAt(f)+k.charAt(l)}return r}function y(e){var r="";var t=0,a=0,n=0,i=0,s=0,f=0,l=0;for(var o=0;o<e.length;){t=e.charCodeAt(o++);if(t>255)t=95;i=t>>2;a=e.charCodeAt(o++);if(a>255)a=95;s=(t&3)<<4|a>>4;n=e.charCodeAt(o++);if(n>255)n=95;f=(a&15)<<2|n>>6;l=n&63;if(isNaN(a)){f=l=64}else if(isNaN(n)){l=64}r+=k.charAt(i)+k.charAt(s)+k.charAt(f)+k.charAt(l)}return r}function E(e){var r="";var t=0,a=0,n=0,i=0,s=0,f=0,l=0;for(var o=0;o<e.length;){t=e[o++];i=t>>2;a=e[o++];s=(t&3)<<4|a>>4;n=e[o++];f=(a&15)<<2|n>>6;l=n&63;if(isNaN(a)){f=l=64}else if(isNaN(n)){l=64}r+=k.charAt(i)+k.charAt(s)+k.charAt(f)+k.charAt(l)}return r}function _(e){var r="";var t=0,a=0,n=0,i=0,s=0,f=0,l=0;if(e.slice(0,5)=="data:"){var o=e.slice(0,1024).indexOf(";base64,");if(o>-1)e=e.slice(o+8)}e=e.replace(/[^\w\+\/\=]/g,"");for(var o=0;o<e.length;){i=k.indexOf(e.charAt(o++));s=k.indexOf(e.charAt(o++));t=i<<2|s>>4;r+=String.fromCharCode(t);f=k.indexOf(e.charAt(o++));a=(s&15)<<4|f>>2;if(f!==64){r+=String.fromCharCode(a)}l=k.indexOf(e.charAt(o++));n=(f&3)<<6|l;if(l!==64){r+=String.fromCharCode(n)}}return r}var S=function(){return typeof Buffer!=="undefined"&&typeof undefined!=="undefined"&&typeof{}!=="undefined"&&!!{}.node}();var x=function(){if(typeof Buffer!=="undefined"){var e=!Buffer.from;if(!e)try{Buffer.from("foo","utf8")}catch(r){e=true}return e?function(e,r){return r?new Buffer(e,r):new Buffer(e)}:Buffer.from.bind(Buffer)}return function(){}}();var A=function(){if(typeof Buffer==="undefined")return false;var e=x([65,0]);if(!e)return false;var r=e.toString("utf16le");return r.length==1}();function C(e){if(S)return Buffer.alloc?Buffer.alloc(e):new Buffer(e);return typeof Uint8Array!="undefined"?new Uint8Array(e):new Array(e)}function I(e){if(S)return Buffer.allocUnsafe?Buffer.allocUnsafe(e):new Buffer(e);return typeof Uint8Array!="undefined"?new Uint8Array(e):new Array(e)}var O=function oT(e){if(S)return x(e,"binary");return e.split("").map(function(e){return e.charCodeAt(0)&255})};function R(e){if(typeof ArrayBuffer==="undefined")return O(e);var r=new ArrayBuffer(e.length),t=new Uint8Array(r);for(var a=0;a!=e.length;++a)t[a]=e.charCodeAt(a)&255;return r}function N(e){if(Array.isArray(e))return e.map(function(e){return String.fromCharCode(e)}).join("");var r=[];for(var t=0;t<e.length;++t)r[t]=String.fromCharCode(e[t]);return r.join("")}function F(e){if(typeof Uint8Array==="undefined")throw new Error("Unsupported");return new Uint8Array(e)}function D(e){if(typeof ArrayBuffer=="undefined")throw new Error("Unsupported");if(e instanceof ArrayBuffer)return D(new Uint8Array(e));var r=new Array(e.length);for(var t=0;t<e.length;++t)r[t]=e[t];return r}var P=S?function(e){return Buffer.concat(e.map(function(e){return Buffer.isBuffer(e)?e:x(e)}))}:function(e){if(typeof Uint8Array!=="undefined"){var r=0,t=0;for(r=0;r<e.length;++r)t+=e[r].length;var a=new Uint8Array(t);var n=0;for(r=0,t=0;r<e.length;t+=n,++r){n=e[r].length;if(e[r]instanceof Uint8Array)a.set(e[r],t);else if(typeof e[r]=="string")a.set(new Uint8Array(O(e[r])),t);else a.set(new Uint8Array(e[r]),t)}return a}return[].concat.apply([],e.map(function(e){return Array.isArray(e)?e:[].slice.call(e)}))};function L(e){var r=[],t=0,a=e.length+250;var n=C(e.length+255);for(var i=0;i<e.length;++i){var s=e.charCodeAt(i);if(s<128)n[t++]=s;else if(s<2048){n[t++]=192|s>>6&31;n[t++]=128|s&63}else if(s>=55296&&s<57344){s=(s&1023)+64;var f=e.charCodeAt(++i)&1023;n[t++]=240|s>>8&7;n[t++]=128|s>>2&63;n[t++]=128|f>>6&15|(s&3)<<4;n[t++]=128|f&63}else{n[t++]=224|s>>12&15;n[t++]=128|s>>6&63;n[t++]=128|s&63}if(t>a){r.push(n.slice(0,t));t=0;n=C(65535);a=65530}}r.push(n.slice(0,t));return P(r)}var M=/\u0000/g,U=/[\u0001-\u0006]/g;function B(e){var r="",t=e.length-1;while(t>=0)r+=e.charAt(t--);return r}function W(e,r){var t=""+e;return t.length>=r?t:yr("0",r-t.length)+t}function z(e,r){var t=""+e;return t.length>=r?t:yr(" ",r-t.length)+t}function H(e,r){var t=""+e;return t.length>=r?t:t+yr(" ",r-t.length)}function V(e,r){var t=""+Math.round(e);return t.length>=r?t:yr("0",r-t.length)+t}function X(e,r){var t=""+e;return t.length>=r?t:yr("0",r-t.length)+t}var G=Math.pow(2,32);function j(e,r){if(e>G||e<-G)return V(e,r);var t=Math.round(e);return X(t,r)}function K(e,r){r=r||0;return e.length>=7+r&&(e.charCodeAt(r)|32)===103&&(e.charCodeAt(r+1)|32)===101&&(e.charCodeAt(r+2)|32)===110&&(e.charCodeAt(r+3)|32)===101&&(e.charCodeAt(r+4)|32)===114&&(e.charCodeAt(r+5)|32)===97&&(e.charCodeAt(r+6)|32)===108}var Y=[["Sun","Sunday"],["Mon","Monday"],["Tue","Tuesday"],["Wed","Wednesday"],["Thu","Thursday"],["Fri","Friday"],["Sat","Saturday"]];var Z=[["J","Jan","January"],["F","Feb","February"],["M","Mar","March"],["A","Apr","April"],["M","May","May"],["J","Jun","June"],["J","Jul","July"],["A","Aug","August"],["S","Sep","September"],["O","Oct","October"],["N","Nov","November"],["D","Dec","December"]];function J(e){if(!e)e={};e[0]="General";e[1]="0";e[2]="0.00";e[3]="#,##0";e[4]="#,##0.00";e[9]="0%";e[10]="0.00%";e[11]="0.00E+00";e[12]="# ?/?";e[13]="# ??/??";e[14]="m/d/yy";e[15]="d-mmm-yy";e[16]="d-mmm";e[17]="mmm-yy";e[18]="h:mm AM/PM";e[19]="h:mm:ss AM/PM";e[20]="h:mm";e[21]="h:mm:ss";e[22]="m/d/yy h:mm";e[37]="#,##0 ;(#,##0)";e[38]="#,##0 ;[Red](#,##0)";e[39]="#,##0.00;(#,##0.00)";e[40]="#,##0.00;[Red](#,##0.00)";e[45]="mm:ss";e[46]="[h]:mm:ss";e[47]="mmss.0";e[48]="##0.0E+0";e[49]="@";e[56]='"上午/下午 "hh"時"mm"分"ss"秒 "';return e}var q={0:"General",1:"0",2:"0.00",3:"#,##0",4:"#,##0.00",9:"0%",10:"0.00%",11:"0.00E+00",12:"# ?/?",13:"# ??/??",14:"m/d/yy",15:"d-mmm-yy",16:"d-mmm",17:"mmm-yy",18:"h:mm AM/PM",19:"h:mm:ss AM/PM",20:"h:mm",21:"h:mm:ss",22:"m/d/yy h:mm",37:"#,##0 ;(#,##0)",38:"#,##0 ;[Red](#,##0)",39:"#,##0.00;(#,##0.00)",40:"#,##0.00;[Red](#,##0.00)",45:"mm:ss",46:"[h]:mm:ss",47:"mmss.0",48:"##0.0E+0",49:"@",56:'"上午/下午 "hh"時"mm"分"ss"秒 "'};var Q={5:37,6:38,7:39,8:40,23:0,24:0,25:0,26:0,27:14,28:14,29:14,30:14,31:14,50:14,51:14,52:14,53:14,54:14,55:14,56:14,57:14,58:14,59:1,60:2,61:3,62:4,67:9,68:10,69:12,70:13,71:14,72:14,73:15,74:16,75:17,76:20,77:21,78:22,79:45,80:46,81:47,82:0};var ee={5:'"$"#,##0_);\\("$"#,##0\\)',63:'"$"#,##0_);\\("$"#,##0\\)',6:'"$"#,##0_);[Red]\\("$"#,##0\\)',64:'"$"#,##0_);[Red]\\("$"#,##0\\)',7:'"$"#,##0.00_);\\("$"#,##0.00\\)',65:'"$"#,##0.00_);\\("$"#,##0.00\\)',8:'"$"#,##0.00_);[Red]\\("$"#,##0.00\\)',66:'"$"#,##0.00_);[Red]\\("$"#,##0.00\\)',41:'_(* #,##0_);_(* \\(#,##0\\);_(* "-"_);_(@_)',42:'_("$"* #,##0_);_("$"* \\(#,##0\\);_("$"* "-"_);_(@_)',43:'_(* #,##0.00_);_(* \\(#,##0.00\\);_(* "-"??_);_(@_)',44:'_("$"* #,##0.00_);_("$"* \\(#,##0.00\\);_("$"* "-"??_);_(@_)'};function re(e,r,t){var a=e<0?-1:1;var n=e*a;var i=0,s=1,f=0;var l=1,o=0,c=0;var u=Math.floor(n);while(o<r){u=Math.floor(n);f=u*s+i;c=u*o+l;if(n-u<5e-8)break;n=1/(n-u);i=s;s=f;l=o;o=c}if(c>r){if(o>r){c=l;f=i}else{c=o;f=s}}if(!t)return[0,a*f,c];var h=Math.floor(a*f/c);return[h,a*f-h*c,c]}function te(e){var r=e.toPrecision(16);if(r.indexOf("e")>-1){var t=r.slice(0,r.indexOf("e"));t=t.indexOf(".")>-1?t.slice(0,t.slice(0,2)=="0."?17:16):t.slice(0,15)+yr("0",t.length-15);return t+r.slice(r.indexOf("e"))}var a=r.indexOf(".")>-1?r.slice(0,r.slice(0,2)=="0."?17:16):r.slice(0,15)+yr("0",r.length-15);return Number(a)}function ae(e,r,t){if(e>2958465||e<0)return null;e=te(e);var a=e|0,n=Math.floor(86400*(e-a)),i=0;var s=[];var f={D:a,T:n,u:86400*(e-a)-n,y:0,m:0,d:0,H:0,M:0,S:0,q:0};if(Math.abs(f.u)<1e-6)f.u=0;if(r&&r.date1904)a+=1462;if(f.u>.9999){f.u=0;if(++n==86400){f.T=n=0;++a;++f.D}}if(a===60){s=t?[1317,10,29]:[1900,2,29];i=3}else if(a===0){s=t?[1317,8,29]:[1900,1,0];i=6}else{if(a>60)--a;var l=new Date(1900,0,1);l.setDate(l.getDate()+a-1);s=[l.getFullYear(),l.getMonth()+1,l.getDate()];i=l.getDay();if(a<60)i=(i+6)%7;if(t)i=ce(l,s)}f.y=s[0];f.m=s[1];f.d=s[2];f.S=n%60;n=Math.floor(n/60);f.M=n%60;n=Math.floor(n/60);f.H=n;f.q=i;return f}function ne(e){return e.indexOf(".")==-1?e:e.replace(/(?:\.0*|(\.\d*[1-9])0+)$/,"$1")}function ie(e){if(e.indexOf("E")==-1)return e;return e.replace(/(?:\.0*|(\.\d*[1-9])0+)[Ee]/,"$1E").replace(/(E[+-])(\d)$/,"$10$2")}function se(e){var r=e<0?12:11;var t=ne(e.toFixed(12));if(t.length<=r)return t;t=e.toPrecision(10);if(t.length<=r)return t;return e.toExponential(5)}function fe(e){var r=ne(e.toFixed(11));return r.length>(e<0?12:11)||r==="0"||r==="-0"?e.toPrecision(6):r}function le(e){if(!isFinite(e))return isNaN(e)?"#NUM!":"#DIV/0!";var r=Math.floor(Math.log(Math.abs(e))*Math.LOG10E),t;if(r>=-4&&r<=-1)t=e.toPrecision(10+r);else if(Math.abs(r)<=9)t=se(e);else if(r===10)t=e.toFixed(10).substr(0,12);else t=fe(e);return ne(ie(t.toUpperCase()))}function oe(e,r){switch(typeof e){case"string":return e;case"boolean":return e?"TRUE":"FALSE";case"number":return(e|0)===e?e.toString(10):le(e);case"undefined":return"";case"object":if(e==null)return"";if(e instanceof Date)return ze(14,dr(e,r&&r.date1904),r);}throw new Error("unsupported value in General format: "+e)}function ce(e,r){r[0]-=581;var t=e.getDay();if(e<60)t=(t+6)%7;return t}function ue(e,r,t,a){var n="",i=0,s=0,f=t.y,l,o=0;switch(e){case 98:f=t.y+543;case 121:switch(r.length){case 1:;case 2:l=f%100;o=2;break;default:l=f%1e4;o=4;break;}break;case 109:switch(r.length){case 1:;case 2:l=t.m;o=r.length;break;case 3:return Z[t.m-1][1];case 5:return Z[t.m-1][0];default:return Z[t.m-1][2];}break;case 100:switch(r.length){case 1:;case 2:l=t.d;o=r.length;break;case 3:return Y[t.q][0];default:return Y[t.q][1];}break;case 104:switch(r.length){case 1:;case 2:l=1+(t.H+11)%12;o=r.length;break;default:throw"bad hour format: "+r;}break;case 72:switch(r.length){case 1:;case 2:l=t.H;o=r.length;break;default:throw"bad hour format: "+r;}break;case 77:switch(r.length){case 1:;case 2:l=t.M;o=r.length;break;default:throw"bad minute format: "+r;}break;case 115:if(r!="s"&&r!="ss"&&r!=".0"&&r!=".00"&&r!=".000")throw"bad second format: "+r;if(t.u===0&&(r=="s"||r=="ss"))return W(t.S,r.length);if(a>=2)s=a===3?1e3:100;else s=a===1?10:1;i=Math.round(s*(t.S+t.u));if(i>=60*s)i=0;if(r==="s")return i===0?"0":""+i/s;n=W(i,2+a);if(r==="ss")return n.substr(0,2);return"."+n.substr(2,r.length-1);case 90:switch(r){case"[h]":;case"[hh]":l=t.D*24+t.H;break;case"[m]":;case"[mm]":l=(t.D*24+t.H)*60+t.M;break;case"[s]":;case"[ss]":l=((t.D*24+t.H)*60+t.M)*60+(a==0?Math.round(t.S+t.u):t.S);break;default:throw"bad abstime format: "+r;}o=r.length===3?1:2;break;case 101:l=f;o=1;break;}var c=o>0?W(l,o):"";return c}function he(e){var r=3;if(e.length<=r)return e;var t=e.length%r,a=e.substr(0,t);for(;t!=e.length;t+=r)a+=(a.length>0?",":"")+e.substr(t,r);return a}var de=/%/g;function ve(e,r,t){var a=r.replace(de,""),n=r.length-a.length;return Fe(e,a,t*Math.pow(10,2*n))+yr("%",n)}function pe(e,r,t){var a=r.length-1;while(r.charCodeAt(a-1)===44)--a;return Fe(e,r.substr(0,a),t/Math.pow(10,3*(r.length-a)))}function me(e,r){var t;var a=e.indexOf("E")-e.indexOf(".")-1;if(e.match(/^#+0.0E\+0$/)){if(r==0)return"0.0E+0";else if(r<0)return"-"+me(e,-r);var n=e.indexOf(".");if(n===-1)n=e.indexOf("E");var i=Math.floor(Math.log(r)*Math.LOG10E)%n;if(i<0)i+=n;t=(r/Math.pow(10,i)).toPrecision(a+1+(n+i)%n);if(t.indexOf("e")===-1){var s=Math.floor(Math.log(r)*Math.LOG10E);if(t.indexOf(".")===-1)t=t.charAt(0)+"."+t.substr(1)+"E+"+(s-t.length+i);else t+="E+"+(s-i);while(t.substr(0,2)==="0."){t=t.charAt(0)+t.substr(2,n)+"."+t.substr(2+n);t=t.replace(/^0+([1-9])/,"$1").replace(/^0+\./,"0.")}t=t.replace(/\+-/,"-")}t=t.replace(/^([+-]?)(\d*)\.(\d*)[Ee]/,function(e,r,t,a){return r+t+a.substr(0,(n+i)%n)+"."+a.substr(i)+"E"})}else t=r.toExponential(a);if(e.match(/E\+00$/)&&t.match(/e[+-]\d$/))t=t.substr(0,t.length-1)+"0"+t.charAt(t.length-1);if(e.match(/E\-/)&&t.match(/e\+/))t=t.replace(/e\+/,"e");return t.replace("e","E")}var be=/# (\?+)( ?)\/( ?)(\d+)/;function ge(e,r,t){var a=parseInt(e[4],10),n=Math.round(r*a),i=Math.floor(n/a);var s=n-i*a,f=a;return t+(i===0?"":""+i)+" "+(s===0?yr(" ",e[1].length+1+e[4].length):z(s,e[1].length)+e[2]+"/"+e[3]+W(f,e[4].length))}function we(e,r,t){return t+(r===0?"":""+r)+yr(" ",e[1].length+2+e[4].length)}var ke=/^#*0*\.([0#]+)/;var Te=/\)[^)]*[0#]/;var ye=/\(###\) ###\\?-####/;function Ee(e){var r="",t;for(var a=0;a!=e.length;++a)switch(t=e.charCodeAt(a)){case 35:break;case 63:r+=" ";break;case 48:r+="0";break;default:r+=String.fromCharCode(t);}return r}function _e(e,r){var t=Math.pow(10,r);return""+Math.round(e*t)/t}function Se(e,r){var t=e-Math.floor(e),a=Math.pow(10,r);if(r<(""+Math.round(t*a)).length)return 0;return Math.round(t*a)}function xe(e,r){if(r<(""+Math.round((e-Math.floor(e))*Math.pow(10,r))).length){return 1}return 0}function Ae(e){if(e<2147483647&&e>-2147483648)return""+(e>=0?e|0:e-1|0);return""+Math.floor(e)}function Ce(e,r,t){if(e.charCodeAt(0)===40&&!r.match(Te)){var a=r.replace(/\( */,"").replace(/ \)/,"").replace(/\)/,"");if(t>=0)return Ce("n",a,t);return"("+Ce("n",a,-t)+")"}if(r.charCodeAt(r.length-1)===44)return pe(e,r,t);if(r.indexOf("%")!==-1)return ve(e,r,t);if(r.indexOf("E")!==-1)return me(r,t);if(r.charCodeAt(0)===36)return"$"+Ce(e,r.substr(r.charAt(1)==" "?2:1),t);var n;var i,s,f,l=Math.abs(t),o=t<0?"-":"";if(r.match(/^00+$/))return o+j(l,r.length);if(r.match(/^[#?]+$/)){n=j(t,0);if(n==="0")n="";return n.length>r.length?n:Ee(r.substr(0,r.length-n.length))+n}if(i=r.match(be))return ge(i,l,o);if(r.match(/^#+0+$/))return o+j(l,r.length-r.indexOf("0"));if(i=r.match(ke)){n=_e(t,i[1].length).replace(/^([^\.]+)$/,"$1."+Ee(i[1])).replace(/\.$/,"."+Ee(i[1])).replace(/\.(\d*)$/,function(e,r){return"."+r+yr("0",Ee(i[1]).length-r.length)});return r.indexOf("0.")!==-1?n:n.replace(/^0\./,".")}r=r.replace(/^#+([0.])/,"$1");if(i=r.match(/^(0*)\.(#*)$/)){return o+_e(l,i[2].length).replace(/\.(\d*[1-9])0*$/,".$1").replace(/^(-?\d*)$/,"$1.").replace(/^0\./,i[1].length?"0.":".")}if(i=r.match(/^#{1,3},##0(\.?)$/))return o+he(j(l,0));if(i=r.match(/^#,##0\.([#0]*0)$/)){return t<0?"-"+Ce(e,r,-t):he(""+(Math.floor(t)+xe(t,i[1].length)))+"."+W(Se(t,i[1].length),i[1].length)}if(i=r.match(/^#,#*,#0/))return Ce(e,r.replace(/^#,#*,/,""),t);if(i=r.match(/^([0#]+)(\\?-([0#]+))+$/)){n=B(Ce(e,r.replace(/[\\-]/g,""),t));s=0;return B(B(r.replace(/\\/g,"")).replace(/[0#]/g,function(e){return s<n.length?n.charAt(s++):e==="0"?"0":""}))}if(r.match(ye)){n=Ce(e,"##########",t);return"("+n.substr(0,3)+") "+n.substr(3,3)+"-"+n.substr(6)}var c="";if(i=r.match(/^([#0?]+)( ?)\/( ?)([#0?]+)/)){s=Math.min(i[4].length,7);f=re(l,Math.pow(10,s)-1,false);n=""+o;c=Fe("n",i[1],f[1]);if(c.charAt(c.length-1)==" ")c=c.substr(0,c.length-1)+"0";n+=c+i[2]+"/"+i[3];c=H(f[2],s);if(c.length<i[4].length)c=Ee(i[4].substr(i[4].length-c.length))+c;n+=c;return n}if(i=r.match(/^# ([#0?]+)( ?)\/( ?)([#0?]+)/)){s=Math.min(Math.max(i[1].length,i[4].length),7);f=re(l,Math.pow(10,s)-1,true);return o+(f[0]||(f[1]?"":"0"))+" "+(f[1]?z(f[1],s)+i[2]+"/"+i[3]+H(f[2],s):yr(" ",2*s+1+i[2].length+i[3].length))}if(i=r.match(/^[#0?]+$/)){n=j(t,0);if(r.length<=n.length)return n;return Ee(r.substr(0,r.length-n.length))+n}if(i=r.match(/^([#0?]+)\.([#0]+)$/)){n=""+t.toFixed(Math.min(i[2].length,10)).replace(/([^0])0+$/,"$1");s=n.indexOf(".");var u=r.indexOf(".")-s,h=r.length-n.length-u;return Ee(r.substr(0,u)+n+r.substr(r.length-h))}if(i=r.match(/^00,000\.([#0]*0)$/)){s=Se(t,i[1].length);return t<0?"-"+Ce(e,r,-t):he(Ae(t)).replace(/^\d,\d{3}$/,"0$&").replace(/^\d*$/,function(e){return"00,"+(e.length<3?W(0,3-e.length):"")+e})+"."+W(s,i[1].length)}switch(r){case"###,##0.00":return Ce(e,"#,##0.00",t);case"###,###":;case"##,###":;case"#,###":var d=he(j(l,0));return d!=="0"?o+d:"";case"###,###.00":return Ce(e,"###,##0.00",t).replace(/^0\./,".");case"#,###.00":return Ce(e,"#,##0.00",t).replace(/^0\./,".");default:;}throw new Error("unsupported format |"+r+"|")}function Ie(e,r,t){var a=r.length-1;while(r.charCodeAt(a-1)===44)--a;return Fe(e,r.substr(0,a),t/Math.pow(10,3*(r.length-a)))}function Oe(e,r,t){var a=r.replace(de,""),n=r.length-a.length;return Fe(e,a,t*Math.pow(10,2*n))+yr("%",n)}function Re(e,r){var t;var a=e.indexOf("E")-e.indexOf(".")-1;if(e.match(/^#+0.0E\+0$/)){if(r==0)return"0.0E+0";else if(r<0)return"-"+Re(e,-r);var n=e.indexOf(".");if(n===-1)n=e.indexOf("E");var i=Math.floor(Math.log(r)*Math.LOG10E)%n;if(i<0)i+=n;t=(r/Math.pow(10,i)).toPrecision(a+1+(n+i)%n);if(!t.match(/[Ee]/)){var s=Math.floor(Math.log(r)*Math.LOG10E);if(t.indexOf(".")===-1)t=t.charAt(0)+"."+t.substr(1)+"E+"+(s-t.length+i);else t+="E+"+(s-i);t=t.replace(/\+-/,"-")}t=t.replace(/^([+-]?)(\d*)\.(\d*)[Ee]/,function(e,r,t,a){return r+t+a.substr(0,(n+i)%n)+"."+a.substr(i)+"E"})}else t=r.toExponential(a);if(e.match(/E\+00$/)&&t.match(/e[+-]\d$/))t=t.substr(0,t.length-1)+"0"+t.charAt(t.length-1);if(e.match(/E\-/)&&t.match(/e\+/))t=t.replace(/e\+/,"e");return t.replace("e","E")}function Ne(e,r,t){if(e.charCodeAt(0)===40&&!r.match(Te)){var a=r.replace(/\( */,"").replace(/ \)/,"").replace(/\)/,"");if(t>=0)return Ne("n",a,t);return"("+Ne("n",a,-t)+")"}if(r.charCodeAt(r.length-1)===44)return Ie(e,r,t);if(r.indexOf("%")!==-1)return Oe(e,r,t);if(r.indexOf("E")!==-1)return Re(r,t);if(r.charCodeAt(0)===36)return"$"+Ne(e,r.substr(r.charAt(1)==" "?2:1),t);var n;var i,s,f,l=Math.abs(t),o=t<0?"-":"";if(r.match(/^00+$/))return o+W(l,r.length);if(r.match(/^[#?]+$/)){n=""+t;if(t===0)n="";return n.length>r.length?n:Ee(r.substr(0,r.length-n.length))+n}if(i=r.match(be))return we(i,l,o);if(r.match(/^#+0+$/))return o+W(l,r.length-r.indexOf("0"));if(i=r.match(ke)){n=(""+t).replace(/^([^\.]+)$/,"$1."+Ee(i[1])).replace(/\.$/,"."+Ee(i[1]));n=n.replace(/\.(\d*)$/,function(e,r){return"."+r+yr("0",Ee(i[1]).length-r.length)});return r.indexOf("0.")!==-1?n:n.replace(/^0\./,".")}r=r.replace(/^#+([0.])/,"$1");if(i=r.match(/^(0*)\.(#*)$/)){return o+(""+l).replace(/\.(\d*[1-9])0*$/,".$1").replace(/^(-?\d*)$/,"$1.").replace(/^0\./,i[1].length?"0.":".")}if(i=r.match(/^#{1,3},##0(\.?)$/))return o+he(""+l);if(i=r.match(/^#,##0\.([#0]*0)$/)){return t<0?"-"+Ne(e,r,-t):he(""+t)+"."+yr("0",i[1].length)}if(i=r.match(/^#,#*,#0/))return Ne(e,r.replace(/^#,#*,/,""),t);if(i=r.match(/^([0#]+)(\\?-([0#]+))+$/)){n=B(Ne(e,r.replace(/[\\-]/g,""),t));s=0;return B(B(r.replace(/\\/g,"")).replace(/[0#]/g,function(e){return s<n.length?n.charAt(s++):e==="0"?"0":""}))}if(r.match(ye)){n=Ne(e,"##########",t);return"("+n.substr(0,3)+") "+n.substr(3,3)+"-"+n.substr(6)}var c="";if(i=r.match(/^([#0?]+)( ?)\/( ?)([#0?]+)/)){s=Math.min(i[4].length,7);f=re(l,Math.pow(10,s)-1,false);n=""+o;c=Fe("n",i[1],f[1]);if(c.charAt(c.length-1)==" ")c=c.substr(0,c.length-1)+"0";n+=c+i[2]+"/"+i[3];c=H(f[2],s);if(c.length<i[4].length)c=Ee(i[4].substr(i[4].length-c.length))+c;n+=c;return n}if(i=r.match(/^# ([#0?]+)( ?)\/( ?)([#0?]+)/)){s=Math.min(Math.max(i[1].length,i[4].length),7);f=re(l,Math.pow(10,s)-1,true);return o+(f[0]||(f[1]?"":"0"))+" "+(f[1]?z(f[1],s)+i[2]+"/"+i[3]+H(f[2],s):yr(" ",2*s+1+i[2].length+i[3].length))}if(i=r.match(/^[#0?]+$/)){n=""+t;if(r.length<=n.length)return n;return Ee(r.substr(0,r.length-n.length))+n}if(i=r.match(/^([#0]+)\.([#0]+)$/)){n=""+t.toFixed(Math.min(i[2].length,10)).replace(/([^0])0+$/,"$1");s=n.indexOf(".");var u=r.indexOf(".")-s,h=r.length-n.length-u;return Ee(r.substr(0,u)+n+r.substr(r.length-h))}if(i=r.match(/^00,000\.([#0]*0)$/)){return t<0?"-"+Ne(e,r,-t):he(""+t).replace(/^\d,\d{3}$/,"0$&").replace(/^\d*$/,function(e){return"00,"+(e.length<3?W(0,3-e.length):"")+e})+"."+W(0,i[1].length)}switch(r){case"###,###":;case"##,###":;case"#,###":var d=he(""+l);return d!=="0"?o+d:"";default:if(r.match(/\.[0#?]*$/))return Ne(e,r.slice(0,r.lastIndexOf(".")),t)+Ee(r.slice(r.lastIndexOf(".")));}throw new Error("unsupported format |"+r+"|")}function Fe(e,r,t){return(t|0)===t?Ne(e,r,t):Ce(e,r,t)}function De(e){var r=[];var t=false;for(var a=0,n=0;a<e.length;++a)switch(e.charCodeAt(a)){case 34:t=!t;break;case 95:;case 42:;case 92:++a;break;case 59:r[r.length]=e.substr(n,a-n);n=a+1;}r[r.length]=e.substr(n);if(t===true)throw new Error("Format |"+e+"| unterminated string ");return r}var Pe=/\[[HhMmSs\u0E0A\u0E19\u0E17]*\]/;function Le(e){var r=0,t="",a="";while(r<e.length){switch(t=e.charAt(r)){case"G":if(K(e,r))r+=6;r++;break;case'"':for(;e.charCodeAt(++r)!==34&&r<e.length;){}++r;break;case"\\":r+=2;break;case"_":r+=2;break;case"@":++r;break;case"B":;case"b":if(e.charAt(r+1)==="1"||e.charAt(r+1)==="2")return true;case"M":;case"D":;case"Y":;case"H":;case"S":;case"E":;case"m":;case"d":;case"y":;case"h":;case"s":;case"e":;case"g":return true;case"A":;case"a":;case"上":if(e.substr(r,3).toUpperCase()==="A/P")return true;if(e.substr(r,5).toUpperCase()==="AM/PM")return true;if(e.substr(r,5).toUpperCase()==="上午/下午")return true;++r;break;case"[":a=t;while(e.charAt(r++)!=="]"&&r<e.length)a+=e.charAt(r);if(a.match(Pe))return true;break;case".":;case"0":;case"#":while(r<e.length&&("0#?.,E+-%".indexOf(t=e.charAt(++r))>-1||t=="\\"&&e.charAt(r+1)=="-"&&"0#".indexOf(e.charAt(r+2))>-1)){}break;case"?":while(e.charAt(++r)===t){}break;case"*":++r;if(e.charAt(r)==" "||e.charAt(r)=="*")++r;break;case"(":;case")":++r;break;case"1":;case"2":;case"3":;case"4":;case"5":;case"6":;case"7":;case"8":;case"9":while(r<e.length&&"0123456789".indexOf(e.charAt(++r))>-1){}break;case" ":++r;break;default:++r;break;}}return false}function Me(e,r,t,a){var n=[],i="",s=0,f="",l="t",o,c,u;var h="H";while(s<e.length){switch(f=e.charAt(s)){case"G":if(!K(e,s))throw new Error("unrecognized character "+f+" in "+e);n[n.length]={t:"G",v:"General"};s+=7;break;case'"':for(i="";(u=e.charCodeAt(++s))!==34&&s<e.length;)i+=String.fromCharCode(u);n[n.length]={t:"t",v:i};++s;break;case"\\":var d=e.charAt(++s),v=d==="("||d===")"?d:"t";n[n.length]={t:v,v:d};++s;break;case"_":n[n.length]={t:"t",v:" "};s+=2;break;case"@":n[n.length]={t:"T",v:r};++s;break;case"B":;case"b":if(e.charAt(s+1)==="1"||e.charAt(s+1)==="2"){if(o==null){o=ae(r,t,e.charAt(s+1)==="2");if(o==null)return""}n[n.length]={t:"X",v:e.substr(s,2)};l=f;s+=2;break};case"M":;case"D":;case"Y":;case"H":;case"S":;case"E":f=f.toLowerCase();case"m":;case"d":;case"y":;case"h":;case"s":;case"e":;case"g":if(r<0)return"";if(o==null){o=ae(r,t);if(o==null)return""}i=f;while(++s<e.length&&e.charAt(s).toLowerCase()===f)i+=f;if(f==="m"&&l.toLowerCase()==="h")f="M";if(f==="h")f=h;n[n.length]={t:f,v:i};l=f;break;case"A":;case"a":;case"上":var p={t:f,v:f};if(o==null)o=ae(r,t);if(e.substr(s,3).toUpperCase()==="A/P"){if(o!=null)p.v=o.H>=12?e.charAt(s+2):f;p.t="T";h="h";s+=3}else if(e.substr(s,5).toUpperCase()==="AM/PM"){if(o!=null)p.v=o.H>=12?"PM":"AM";p.t="T";s+=5;h="h"}else if(e.substr(s,5).toUpperCase()==="上午/下午"){if(o!=null)p.v=o.H>=12?"下午":"上午";p.t="T";s+=5;h="h"}else{p.t="t";++s}if(o==null&&p.t==="T")return"";n[n.length]=p;l=f;break;case"[":i=f;while(e.charAt(s++)!=="]"&&s<e.length)i+=e.charAt(s);if(i.slice(-1)!=="]")throw'unterminated "[" block: |'+i+"|";if(i.match(Pe)){if(o==null){o=ae(r,t);if(o==null)return""}n[n.length]={t:"Z",v:i.toLowerCase()};l=i.charAt(1)}else if(i.indexOf("$")>-1){i=(i.match(/\$([^-\[\]]*)/)||[])[1]||"$";if(!Le(e))n[n.length]={t:"t",v:i}}break;case".":if(o!=null){i=f;while(++s<e.length&&(f=e.charAt(s))==="0")i+=f;n[n.length]={t:"s",v:i};break};case"0":;case"#":i=f;while(++s<e.length&&"0#?.,E+-%".indexOf(f=e.charAt(s))>-1)i+=f;n[n.length]={t:"n",v:i};break;case"?":i=f;while(e.charAt(++s)===f)i+=f;n[n.length]={t:f,v:i};l=f;break;case"*":++s;if(e.charAt(s)==" "||e.charAt(s)=="*")++s;break;case"(":;case")":n[n.length]={t:a===1?"t":f,v:f};++s;break;case"1":;case"2":;case"3":;case"4":;case"5":;case"6":;case"7":;case"8":;case"9":i=f;while(s<e.length&&"0123456789".indexOf(e.charAt(++s))>-1)i+=e.charAt(s);n[n.length]={t:"D",v:i};break;case" ":n[n.length]={t:f,v:f};++s;break;case"$":n[n.length]={t:"t",v:"$"};++s;break;default:if(",$-+/():!^&'~{}<>=€acfijklopqrtuvwxzP".indexOf(f)===-1)throw new Error("unrecognized character "+f+" in "+e);n[n.length]={t:"t",v:f};++s;break;}}var m=0,b=0,g;for(s=n.length-1,l="t";s>=0;--s){switch(n[s].t){case"h":;case"H":n[s].t=h;l="h";if(m<1)m=1;break;case"s":if(g=n[s].v.match(/\.0+$/)){b=Math.max(b,g[0].length-1);m=4}if(m<3)m=3;case"d":;case"y":;case"e":l=n[s].t;break;case"M":l=n[s].t;if(m<2)m=2;break;case"m":if(l==="s"){n[s].t="M";if(m<2)m=2}break;case"X":break;case"Z":if(m<1&&n[s].v.match(/[Hh]/))m=1;if(m<2&&n[s].v.match(/[Mm]/))m=2;if(m<3&&n[s].v.match(/[Ss]/))m=3;}}var w;switch(m){case 0:break;case 1:;case 2:;case 3:if(o.u>=.5){o.u=0;++o.S}if(o.S>=60){o.S=0;++o.M}if(o.M>=60){o.M=0;++o.H}if(o.H>=24){o.H=0;++o.D;w=ae(o.D);w.u=o.u;w.S=o.S;w.M=o.M;w.H=o.H;o=w}break;case 4:switch(b){case 1:o.u=Math.round(o.u*10)/10;break;case 2:o.u=Math.round(o.u*100)/100;break;case 3:o.u=Math.round(o.u*1e3)/1e3;break;}if(o.u>=1){o.u=0;++o.S}if(o.S>=60){o.S=0;++o.M}if(o.M>=60){o.M=0;++o.H}if(o.H>=24){o.H=0;++o.D;w=ae(o.D);w.u=o.u;w.S=o.S;w.M=o.M;w.H=o.H;o=w}break;}var k="",T;for(s=0;s<n.length;++s){switch(n[s].t){case"t":;case"T":;case" ":;case"D":break;case"X":n[s].v="";n[s].t=";";break;case"d":;case"m":;case"y":;case"h":;case"H":;case"M":;case"s":;case"e":;case"b":;case"Z":n[s].v=ue(n[s].t.charCodeAt(0),n[s].v,o,b);n[s].t="t";break;case"n":;case"?":T=s+1;while(n[T]!=null&&((f=n[T].t)==="?"||f==="D"||(f===" "||f==="t")&&n[T+1]!=null&&(n[T+1].t==="?"||n[T+1].t==="t"&&n[T+1].v==="/")||n[s].t==="("&&(f===" "||f==="n"||f===")")||f==="t"&&(n[T].v==="/"||n[T].v===" "&&n[T+1]!=null&&n[T+1].t=="?"))){n[s].v+=n[T].v;n[T]={v:"",t:";"};++T}k+=n[s].v;s=T-1;break;case"G":n[s].t="t";n[s].v=oe(r,t);break;}}var y="",E,_;if(k.length>0){if(k.charCodeAt(0)==40){E=r<0&&k.charCodeAt(0)===45?-r:r;_=Fe("n",k,E)}else{E=r<0&&a>1?-r:r;_=Fe("n",k,E);if(E<0&&n[0]&&n[0].t=="t"){_=_.substr(1);n[0].v="-"+n[0].v}}T=_.length-1;var S=n.length;for(s=0;s<n.length;++s)if(n[s]!=null&&n[s].t!="t"&&n[s].v.indexOf(".")>-1){S=s;break}var x=n.length;if(S===n.length&&_.indexOf("E")===-1){for(s=n.length-1;s>=0;--s){if(n[s]==null||"n?".indexOf(n[s].t)===-1)continue;if(T>=n[s].v.length-1){T-=n[s].v.length;n[s].v=_.substr(T+1,n[s].v.length)}else if(T<0)n[s].v="";else{n[s].v=_.substr(0,T+1);T=-1}n[s].t="t";x=s}if(T>=0&&x<n.length)n[x].v=_.substr(0,T+1)+n[x].v}else if(S!==n.length&&_.indexOf("E")===-1){T=_.indexOf(".")-1;for(s=S;s>=0;--s){if(n[s]==null||"n?".indexOf(n[s].t)===-1)continue;c=n[s].v.indexOf(".")>-1&&s===S?n[s].v.indexOf(".")-1:n[s].v.length-1;y=n[s].v.substr(c+1);for(;c>=0;--c){if(T>=0&&(n[s].v.charAt(c)==="0"||n[s].v.charAt(c)==="#"))y=_.charAt(T--)+y}n[s].v=y;n[s].t="t";x=s}if(T>=0&&x<n.length)n[x].v=_.substr(0,T+1)+n[x].v;T=_.indexOf(".")+1;for(s=S;s<n.length;++s){if(n[s]==null||"n?(".indexOf(n[s].t)===-1&&s!==S)continue;c=n[s].v.indexOf(".")>-1&&s===S?n[s].v.indexOf(".")+1:0;y=n[s].v.substr(0,c);for(;c<n[s].v.length;++c){if(T<_.length)y+=_.charAt(T++)}n[s].v=y;n[s].t="t";x=s}}}for(s=0;s<n.length;++s)if(n[s]!=null&&"n?".indexOf(n[s].t)>-1){E=a>1&&r<0&&s>0&&n[s-1].v==="-"?-r:r;n[s].v=Fe(n[s].t,n[s].v,E);n[s].t="t"}var A="";for(s=0;s!==n.length;++s)if(n[s]!=null)A+=n[s].v;return A}var Ue=/\[(=|>[=]?|<[>=]?)(-?\d+(?:\.\d*)?)\]/;function Be(e,r){if(r==null)return false;var t=parseFloat(r[2]);switch(r[1]){case"=":if(e==t)return true;break;case">":if(e>t)return true;break;case"<":if(e<t)return true;break;case"<>":if(e!=t)return true;break;case">=":if(e>=t)return true;break;case"<=":if(e<=t)return true;break;}return false}function We(e,r){var t=De(e);var a=t.length,n=t[a-1].indexOf("@");if(a<4&&n>-1)--a;if(t.length>4)throw new Error("cannot find right format for |"+t.join("|")+"|");if(typeof r!=="number")return[4,t.length===4||n>-1?t[t.length-1]:"@"];if(typeof r==="number"&&!isFinite(r))r=0;switch(t.length){case 1:t=n>-1?["General","General","General",t[0]]:[t[0],t[0],t[0],"@"];break;case 2:t=n>-1?[t[0],t[0],t[0],t[1]]:[t[0],t[1],t[0],"@"];break;case 3:t=n>-1?[t[0],t[1],t[0],t[2]]:[t[0],t[1],t[2],"@"];break;case 4:break;}var i=r>0?t[0]:r<0?t[1]:t[2];if(t[0].indexOf("[")===-1&&t[1].indexOf("[")===-1)return[a,i];if(t[0].match(/\[[=<>]/)!=null||t[1].match(/\[[=<>]/)!=null){var s=t[0].match(Ue);var f=t[1].match(Ue);return Be(r,s)?[a,t[0]]:Be(r,f)?[a,t[1]]:[a,t[s!=null&&f!=null?2:1]]}return[a,i]}function ze(e,r,t){if(t==null)t={};var a="";switch(typeof e){case"string":if(e=="m/d/yy"&&t.dateNF)a=t.dateNF;else a=e;break;case"number":if(e==14&&t.dateNF)a=t.dateNF;else a=(t.table!=null?t.table:q)[e];if(a==null)a=t.table&&t.table[Q[e]]||q[Q[e]];if(a==null)a=ee[e]||"General";break;}if(K(a,0))return oe(r,t);if(r instanceof Date)r=dr(r,t.date1904);var n=We(a,r);if(K(n[1]))return oe(r,t);if(r===true)r="TRUE";else if(r===false)r="FALSE";else if(r===""||r==null)return"";else if(isNaN(r)&&n[1].indexOf("0")>-1)return"#NUM!";else if(!isFinite(r)&&n[1].indexOf("0")>-1)return"#DIV/0!";return Me(n[1],r,t,n[0])}function He(e,r){if(typeof r!="number"){r=+r||-1;for(var t=0;t<392;++t){if(q[t]==undefined){if(r<0)r=t;continue}if(q[t]==e){r=t;break}}if(r<0)r=391}q[r]=e;return r}function Ve(e){for(var r=0;r!=392;++r)if(e[r]!==undefined)He(e[r],r)}function $e(){q=J()}var Xe={format:ze,load:He,_table:q,load_table:Ve,parse_date_code:ae,is_date:Le,get_table:function cT(){return Xe._table=q}};var Ge={5:'"$"#,##0_);\\("$"#,##0\\)',6:'"$"#,##0_);[Red]\\("$"#,##0\\)',7:'"$"#,##0.00_);\\("$"#,##0.00\\)',8:'"$"#,##0.00_);[Red]\\("$"#,##0.00\\)',23:"General",24:"General",25:"General",26:"General",27:"m/d/yy",28:"m/d/yy",29:"m/d/yy",30:"m/d/yy",31:"m/d/yy",32:"h:mm:ss",33:"h:mm:ss",34:"h:mm:ss",35:"h:mm:ss",36:"m/d/yy",41:'_(* #,##0_);_(* (#,##0);_(* "-"_);_(@_)',42:'_("$"* #,##0_);_("$"* (#,##0);_("$"* "-"_);_(@_)',43:'_(* #,##0.00_);_(* (#,##0.00);_(* "-"??_);_(@_)',44:'_("$"* #,##0.00_);_("$"* (#,##0.00);_("$"* "-"??_);_(@_)',50:"m/d/yy",51:"m/d/yy",52:"m/d/yy",53:"m/d/yy",54:"m/d/yy",55:"m/d/yy",56:"m/d/yy",57:"m/d/yy",58:"m/d/yy",59:"0",60:"0.00",61:"#,##0",62:"#,##0.00",63:'"$"#,##0_);\\("$"#,##0\\)',64:'"$"#,##0_);[Red]\\("$"#,##0\\)',65:'"$"#,##0.00_);\\("$"#,##0.00\\)',66:'"$"#,##0.00_);[Red]\\("$"#,##0.00\\)',67:"0%",68:"0.00%",69:"# ?/?",70:"# ??/??",71:"m/d/yy",72:"m/d/yy",73:"d-mmm-yy",74:"d-mmm",75:"mmm-yy",76:"h:mm",77:"h:mm:ss",78:"m/d/yy h:mm",79:"mm:ss",80:"[h]:mm:ss",81:"mmss.0"};var je=/[dD]+|[mM]+|[yYeE]+|[Hh]+|[Ss]+/g;function Ke(e){var r=typeof e=="number"?q[e]:e;r=r.replace(je,"(\\d+)");je.lastIndex=0;return new RegExp("^"+r+"$");
@@ -313,28 +392,81 @@ function parseAll(sheets){
 }
 
 // raw tables for "Bảng gốc"
+const FRIENDLY=[["lichtg","Lịch Trợ Giảng"],["tgcm","TG Chuyên Môn"],["duadon","Đưa Đón"],["giasu","Gia Sư"],["doan","Đồ Ăn"]];
+function trimBlock(rows,hdr){
+  rows=rows.map(r=>r.slice());
+  // bỏ dòng trống liên tiếp + dòng trống cuối
+  rows=rows.filter((r,i)=>i<hdr||r.some(Boolean)||(i>0&&rows[i-1].some(Boolean)));
+  while(rows.length>hdr&&!rows[rows.length-1].some(Boolean))rows.pop();
+  if(!rows.length) return rows;
+  const w=rows[0].length, data=rows.slice(hdr);
+  const keep=[]; for(let j=0;j<w;j++) if(j===0||data.some(r=>r[j])||(!data.length&&rows.some(r=>r[j]))) keep.push(j);
+  // giữ tiêu đề nhóm (vd "Buổi 1") nếu cột chứa nó bị bỏ
+  if(hdr>1){const r0=rows[0];
+    for(let j=0;j<w;j++) if(r0[j]&&!keep.includes(j)){const k=keep.find(k=>k>j&&!r0.slice(j+1,k+1).some(Boolean)); if(k!==undefined){r0[k]=r0[j];}}}
+  return rows.map(r=>keep.map(j=>r[j]));
+}
 function buildTables(sheets){
   const res=[];
   Object.entries(sheets).forEach(([name,rows])=>{
     rows=cleanRows(rows); if(!rows.length) return;
-    const w=rows[0].length, keep=[];
-    for(let j=0;j<w;j++) if(rows.some(r=>r[j])) keep.push(j);
-    rows=rows.map(r=>keep.map(j=>r[j]));
-    res.push({id:name,title:one(name),hdr:norm(name).includes("tgcm")?2:1,rows});
+    const key=norm(name), fr=FRIENDLY.find(([k])=>key.includes(k));
+    const hdr=key.includes("tgcm")?2:1;
+    let blocks=[];
+    const offs=[]; if(hdr===2) rows[0].forEach((h,j)=>{if(norm(h)==="lop")offs.push(j);});
+    if(offs.length>1){
+      offs.forEach((o,bi)=>{const end=offs[bi+1]??rows[0].length;
+        const b=trimBlock(rows.map(r=>r.slice(o,end)),hdr);
+        const names=b.slice(hdr).filter(r=>r[0]&&dayOf(r[1]||'')).map(r=>r[0]);
+        if(b.length>hdr) blocks.push({caption:names.join(' · '),rows:b});});
+    } else blocks=[{caption:'',rows:trimBlock(rows,hdr)}];
+    blocks=blocks.filter(b=>b.rows.length);
+    if(!blocks.length) return;
+    res.push({id:name,title:fr?fr[1]:one(name),hdr,blocks,count:blocks.reduce((a,b)=>a+b.rows.slice(hdr).filter(r=>r.some(Boolean)).length,0)});
   });
   return res;
 }
 
-const DEFAULT={sheets:{"LICH TG": [["Buổi", "Chú\ný", "Long bé ", "Mạnh\nHùng", "Quang\nTùng", "Khôi\nNguyên", "Buổi", "Hoàng \nLong (lớn)", "Xuân\nBắc\nNgõ 107", "Ninh\nTrang", "Vũ\nQuang Vinh\n1A", "Buổi", "Ca 2"], ["", "", "2008", "1994", "2006", "", "", "2002", "2006", "2007", "2007", "", ""], ["", "", "", "", "", "", "", "", "091.629.5600", "033.813.1698", "", "", ""], ["T2", "(1) Đèo Uyên Nhi xe BUS-HIGH\n(2) Xếp bàn IE nhà 56\nTùng đón Lan Anh (SKY)\nKiểm tra 158", "17h00-20h30\nQLC", "17h00-20h30\nQLC", "17h00-21h45\nQLC", "Rảnh", "T2", "", "17h00-20h30\n", "", "", "T2", "WIN"], ["T3", "Tùng đón Bảo Phú\nMỹ An (Smile)", "", "17h00-20h30\nQLC", "17h00-21h00\nQLC", "", "T3", "", "", "17h00-20h30\nQLC", "17h00-20h30", "T3", ""], ["T4", "Tùng đón Lan Anh (SKY)", "17h00-21h45\nQLC", "17h00-20h30\nQLC", "17h00-21h00\nQLC", "17h00-20h30", "T4", "", "", "", "", "T4", "WONDER\nBLUE"], ["T5", "Tùng đón Bảo Phú\nMỹ An (Smile)", "17h00-20h30\nQLC", "17h00-20h30\nQLC", "17h00-21h45\nQLC", "", "T5", "", "", "17h00-20h30\nQLC", "", "T5", "CAN\nOCEAN"], ["T6", "(1) Xếp bàn IE nhà 56\n(2) Chú ý nhà 1/158: Có lớp DELTA kiểm tra cửa", "", "17h00-20h30\nQLC", "17h00-21h00\nKIND\nAPOLLO", "17h00-20h30", "T6", "", "", "", "17h00-21h45\nKIND\nAPOLLO", "T6", "WIN\nATHENA\nTRY"], ["T7", "", "17h00-20h30\nQLC", "Rảnh", "17h00-21h45\nQLC", "", "T7", "17h00-20h00\nQL 158", "17h00-20h30\nApollo\nOzone", "17h00-20h30\nApollo\nOzone", "", "T7", "CAN"], ["Sáng\nCN", "", "", "", "7h30-11h45\nQLC", "7h30-11h45\nQLC", "Sáng\nCN", "", "Rảnh", "", "Rảnh", "Sáng\nCN", ""], ["CN", "", "15h00-19h00\nQLC", "", "15h00-19h00\nQLC", "", "CN", "15h00-19h00\nQL 158", "", "", "15h00-19h00\nSVIP", "CN", ""], ["Ghi chú:Hoàng Công thiết kế từ xa 081.997.9700; Hòng máy tính laptop 24h: 096.300.9992 (176 Lê Thanh Nghị). \nHàng in 196 Hồng Mai 091.216.1604. A Hùng hỗ trợ 034.396.9358", "", "", "", "", "", "", "", "", "", "", "", ""]], "TGCM": [["Lớp ", "Buổi 1", "", "", "Buổi 2", "", "", "", "Lớp ", "Buổi 1", "", "", "Buổi 2", "", "", "", "Lớp ", "Buổi 1", "", "", "Buổi 2", "", ""], ["", "Tên trợ giảng", "Giờ", "Lương", "Tên trợ giảng", "Giờ", "Lương", "", "", "Tên trợ giảng", "Giờ", "Lương", "Tên trợ giảng", "Giờ", "Lương", "", "", "Tên trợ giảng", "Giờ", "Lương", "Tên trợ giảng", "Giờ", "Lương"], ["CLC", "Thứ 3:", "", "", "Thứ 6:", "", "", "", "CAN", "Thứ 5", "", "", "Thứ 7", "", "", "", "BIG", "Thứ 2", "", "", "Thứ 4", "", ""], ["", "Phan Gia Phú 6.5", "20h00-21h30", "", "Phan Gia Phú 6.5", "18h15-20h00", "", "", "", "Bảo Anh 6.5", "", "", "Bảo Anh 6.5", "", "", "", "", "Hồng Hạnh", "", "", "Hồng Hạnh", "", ""], ["", "Lê Anh Thư", "", "", "Lê Anh Thư", "", "", "", "", "Mạnh Toàn 6.5", "", "", "Mạnh Toàn 6.5", "", "", "", "", "Đỗ Lê Anh Thư FUN", "", "", "Đỗ Lê Anh Thư FUN", "", ""], ["", "Nguyễn Hồng Ngọc 7.0", "", "", "Vương Thùy Trang 6.5", "", "", "", "", "Quỳnh Anh 7.0", "", "", "Quỳnh Anh 7.0", "", "", "", "SUN", "Thứ 3", "", "", "Thứ 5", "", ""], ["Nhóm yếu", "Mai Phương Trà", "20h30-21h30", "", "Mai Phương Trà", "19h15-20h15", "", "", "", "", "", "", "", "", "", "", "", "Nguyễn Hà Linh bạn P Thanh 6.0", "", "", "Nguyễn Hà Linh bạn P Thanh 6.0", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["BOSS", "Thứ 3", "", "", "Thứ 5", "", "", "", "", "", "", "", "", "", "", "", "HOPE", "Thứ 4", "", "", "Thứ 6", "", ""], ["", "Vương Thùy Trang 6.5", "", "", "Vương Thùy Trang 6.5", "", "", "", "WON", "Thứ 4", "", "", "Sáng CN", "", "", "", "", "Hồng Anh bạn Bảo Anh Toeic", "", "", "Hồng Anh bạn Bảo Anh Toeic", "", ""], ["", "Phan Gia Phú 6.5", "18h15-20h00", "", "Đức Tâm 6.5", "", "", "", "(NP)", "Quỳnh Anh 7.0", "", "", "Quỳnh Anh 7.0", "8h50-10h00", "", "", "", "", "", "", "", "", ""], ["", "Đỗ Lê Anh Thư FUN", "", "", "Đỗ Lê Anh Thư FUN", "", "", "", "", "Thu Minh 6.5", "", "", "Thu Minh 6.5", "", "", "", "", "", "", "", "", "", ""], ["", "Hà Anh Ngọc", "18h15-20h00", "", "Hà Anh Ngọc", "18h15-20h00", "", "", "", "Thanh Mai 7.0", "", "", "Thanh Mai 7.0", "", "", "", "SMILE", "Thứ 3", "", "", "Thứ 5", "", ""], ["", "", "", "", "", "", "", "", "", "Hà My 7.0", "", "", "Hà My 7.0", "", "", "", "", "Hà Hoàng Anh bạn Phú", "", "", "Hà Hoàng Anh bạn Phú", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Good", "Thứ 2", "", "", "Thứ 4", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Hà Hoàng Anh bạn Phú 7.0", "", "", "Hà Hoàng Anh bạn Phú 7.0", "", ""], ["HIGH", "Thứ 2", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "CAM", "Thứ 3", "", "", "Thứ 5", "", ""], ["", "Lê Anh Thư", "18h00-21h00", "", "", "", "", "", "WIN-IE", "Thứ 2", "", "", "T6", "", "", "", "", "Trúc Anh con A Hoằng", "", "", "Trúc Anh con A Hoằng", "", ""], ["", "Lê Diệp Anh", "18h00-21h00", "", "", "", "", "", "", "", "", "", "", "", "", "", "Mickey", "Thứ 3", "", "", "Thứ 5", "", ""], ["", "Phan Gia Phú 6.5", "18h00-21h00", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Mai Phương Trà", "", "", "Mai Phương Trà", "", ""], ["", "Nguyễn Hà Linh bạn Thanh 6.0", "19h10-21h00", "", "", "", "", "", "", "", "", "", "", "", "", "", "ATH", "Thứ 6", "", "", "Sáng CN", "", ""], ["", "Trịnh Phương Thanh", "19h10-21h00", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Phan Gia Phú", "", "", "Phan Gia Phú", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "Dạy lại sáng CN", "", "", "Hồng Ngọc", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["Super VIP", "Thứ 7", "", "", "CN", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "Nguyễn Hồng Ngọc 7.0", "", "", "Hà Anh Ngọc", "", "", "", "GS", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "Phương Thanh", "", "", "Quỳnh Anh 7.0", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "Đức Tâm 6.5", "", "", "Đức Tâm 6.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["Nhóm yếu", "Hồng Anh", "19h15-20h15", "", "Hồng Anh", "18h15-19h15:", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "Bận: Phương Thanh; Hồng Ngọc;\nPhương Trà", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["EVIC", "Thứ 4", "", "", "CN", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "Lê Anh Thư", "", "", "Phương Thanh", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "Vương Thùy Trang 6.5", "", "", "Vương Thùy Trang 6.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "Hà Anh Ngọc", "", "", "Hà Anh Ngọc", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "Mai Phương Trà", "19h00-21h10", "", "Đỗ Lê Anh Thư FUN", " 10h30-11h40", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""]], "Đua Đón": [["Học Sinh", "Lớp", "Lịch", "Số chiều", "Phụ huynh", "ĐT", "Địa chỉ"], ["Lan Anh em Tuấn Anh B", "SKY", "Thứ 2 và Thứ 4 học lúc\n18h15-19h45", "Cả đi và về", "Vũ Thị Thu Hương", "091 738 1828", "32 ngõ 230 Lạc Trung; Đi vào ngõ 230 Lạc Trung . Thấy siêu thị Win thì đi kịch đương xong rẽ phải 5m đến cột điện đầu tiên thì rẽ trái 5m là tới nhà có 4 cánh cửa inox"], ["Bảo Phú + Mỹ An", "CAM + SMILE", "Thứ 3 và Thứ 5 học lúc\n18h30-20h00", "Chỉ đưa đi học", "Nguyễn Hữu Thịnh/\nĐào Thị Thuỷ", "098.352.0087\nSố khác 039.651.9487", "Số 2 ngõ 352 Trương Định; "], ["Lê Minh Hà", "GOLD", "Thứ 2 và Thứ 4 học lúc\n18h30-20h00", "Cả đi và về", "Lê Minh Hà", "038 996 7035", "Số 7 ngõ 70 phố 8/3 a"], ["Uyên Nhi", "HIGH", "Thứ từ 18h00-20h45", "Chỉ đưa lúc về", "", "094.627.0613", "Ra bến xe bus Bạch Mai"], ["", "", "", "", "", "", ""], ["", "", "", "", "", "", ""], ["Đặt Grab khi PH gọi", "", "", "", "", "", ""], ["Minh Đức + Mỹ Tâm", "KIND + HOPE", "", "", "", "", "Số 8 ngách 11b ngõ 70 thanh lân"], ["Dương Kiều Trang", "MOON", "", "", "", "", "9 ngõ 75 giải phóng"], ["Huy Hoàng", "HIGH", "", "", "", "", "31 Hàng Bài"]], "Gia sư": [["Học Sinh", "Lớp", "Lịch", "Gia sư", "Vị trí", "Quản lý"], ["Trần Minh Quân", "KIND", "Học GS thứ 2 từ 18h30-20h00\n(Thay cho buổi thứ 6-KIND)", "Mai Phương Trà", "T1 nhà 60B\n(Phía sau nhà 58)", "In phiếu lớp KIND\nhôm thứ 6 (Trà gửi/nếu nghỉ trợ giảng vào nhóm KIND/hoặc gọi cô Tân)"], ["Đào Hữu Anh Quân", "WON", "Học GS thứ 7 từ 20h00-21h30\n(Thay cho buổi thứ 4 - WON)", "Thùy Trang", "T1 nhà 60B\n(Phía sau nhà 58)", "Trợ giảng chuyên môn in phiếu ở ngoài"], ["Nguyễn Bảo Nam ", "SMILE", "Học GS thứ 2 từ 19h00-20h30", "Hồng Anh", "Tại nhà HS", "Không phải quan tâm"], ["HIGH học lại:\nCố định Huy Hoàng;\nLê Quang Vinh", "", "Sáng CN: 9h30-11h00", "Hồng Ngọc", "T2 nhà 58", "Chỉ in phát sinh khi TG yêu cầu"], ["", "", "", "", "", ""], ["", "", "", "", "", ""]], "Do An": [["Lớp", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 7", "sáng CN", "chiều CN", ""], ["", "High", "Boss", "Vic", "Boss", "SV", "Vic", "SV", ""], ["Giờ lấy", "19h00-1\n9h15", "18h45-\n19h00", "18h45-\n19h00", "18h45-\n19h00", "18h45-\n19h00", "", "17h45-\n18h00", ""], ["Tuần 1", "Bánh gà \nràn pho mai", "Bánh gà \nràn pho mai", "Bánh gà \nrán pho mai", "Bánh Bông Lan\nSolite", "Bánh gà \nràn pho mai", "Bánh Bông Lan\nSolite", "Bánh Bông Lan\nSolite", ""], ["Tuần 2", "Khoai \nTây ", "Khoai \nTây ", "Khoai \nTây ", "Xúc\nXích", "Khoai \nTây ", "Xúc\nXích", "Xúc\nXích", ""], ["Tuần 3", "Thịt xiên", "Thịt xiên", "Thịt xiên", "Su kem", "Thịt xiên", "Bánh gà \nrán pho mai", "Bánh gà \nràn pho mai", ""], ["Tuần 4", "Bánh Bông Lan\nSolite", "Khoai \nTây ", "Caramen", "Caramen", "Caramen", "Su kem", "Su kem", ""], ["", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "ĐT", "Định lg", "Giá", "Phát"], ["", "Thịt xiên ông Ất phố Bùi Ngọc Dương", "", "", "", "038.957.7050", "", "9k", "1"], ["", "Thịt xiên bà béo Trường Đảng", "", "", "", "096.166.9162", "", "10k", "1"], ["", "Khoai tây phomai", "", "", "", "", "", "10k", "1"], ["", "Hộp bánh bông lan Solite Tạp hóa 133 Hồng Mai", "", "", "", "", "20 cái/hộp", "45K", "2"], ["", "Xúc Xúc xích ponnie", "", "", "", "", "5 cái/gói", "20K", "2"], ["", "Su kem Quỳnh Mai", "", "", "", "093.451.9651", "8 cái/hộp", "15K", "2"], ["", "Caramen Quỳnh Mai", "", "", "", "098.492.9515", "", "", "1"], ["", "", "", "", "", "", "", "", ""], ["", "Món xịn", "", "", "", "", "", "", ""], ["", "Trà sữa 1989", "", "", "", "089.857.0906", "", "", ""], ["", "Trà tranh (Tùng nước ép cạnh 1989(", "", "", "", "088.9976.787", "", "", ""], ["", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", ""]]},meta:{file:"3. DIEU HANH HA VI 22.9.26 FULL (dữ liệu gốc)",date:"22.9.26"}};
-const STORE="hv_dieuhanh_v1";
-let D, TABLES, META;
-function loadData(pkg){
-  D=parseAll(pkg.sheets); TABLES=buildTables(pkg.sheets); META=pkg.meta||{};
-  D.persons=D.persons||[];
-  if(!TABLES.find(t=>t.id===rawTab)) rawTab=TABLES[0]?TABLES[0].id:'__all';
-  document.getElementById('upd').textContent=(META.date?'Cập nhật '+META.date:'')+(META.saved?' · tải lên '+META.saved:'');
-  document.getElementById('upd').title=META.file||'';
+// blocks for edit mode: keep original row/col indices
+function buildEditBlocks(name,rows){
+  const w=rows[0]?rows[0].length:0, key=norm(name), hdr=key.includes("tgcm")?2:1;
+  const offs=[]; if(hdr===2&&rows[0]) rows[0].forEach((h,j)=>{if(norm(h)==="lop")offs.push(j);});
+  const ranges=offs.length>1?offs.map((o,i)=>[o,offs[i+1]??w]):[[0,w]];
+  const colUsed=j=>rows.some(r=>r[j]);
+  return {hdr,blocks:ranges.map(([c0,c1])=>{
+    const cols=[]; for(let j=c0;j<c1;j++) if(j===c0||colUsed(j)) cols.push(j);
+    let last=rows.length-1; while(last>hdr&&!cols.some(j=>rows[last][j])) last--;
+    const names=[]; for(let r=hdr;r<=last;r++){const v=rows[r][c0]; if(v&&dayOf(rows[r][c0+1]||'')) names.push(v);}
+    return {c0,c1,cols,last,full:c0===0&&c1>=w,caption:offs.length>1?names.join(' · '):''};
+  })};
 }
+
+const DEFAULT={sheets:{"LICH TG": [["Buổi", "Chú\ný", "Long bé ", "Mạnh\nHùng", "Quang\nTùng", "Khôi\nNguyên", "Buổi", "Hoàng \nLong (lớn)", "Xuân\nBắc\nNgõ 107", "Ninh\nTrang", "Vũ\nQuang Vinh\n1A", "Buổi", "Ca 2"], ["", "", "2008", "1994", "2006", "", "", "2002", "2006", "2007", "2007", "", ""], ["", "", "", "", "", "", "", "", "091.629.5600", "033.813.1698", "", "", ""], ["T2", "(1) Đèo Uyên Nhi xe BUS-HIGH\n(2) Xếp bàn IE nhà 56\nTùng đón Lan Anh (SKY)\nKiểm tra 158", "17h00-20h30\nQLC", "17h00-20h30\nQLC", "17h00-21h45\nQLC", "Rảnh", "T2", "", "17h00-20h30\n", "", "", "T2", "WIN"], ["T3", "Tùng đón Bảo Phú\nMỹ An (Smile)", "", "17h00-20h30\nQLC", "17h00-21h00\nQLC", "", "T3", "", "", "17h00-20h30\nQLC", "17h00-20h30", "T3", ""], ["T4", "Tùng đón Lan Anh (SKY)", "17h00-21h45\nQLC", "17h00-20h30\nQLC", "17h00-21h00\nQLC", "17h00-20h30", "T4", "", "", "", "", "T4", "WONDER\nBLUE"], ["T5", "Tùng đón Bảo Phú\nMỹ An (Smile)", "17h00-20h30\nQLC", "17h00-20h30\nQLC", "17h00-21h45\nQLC", "", "T5", "", "", "17h00-20h30\nQLC", "", "T5", "CAN\nOCEAN"], ["T6", "(1) Xếp bàn IE nhà 56\n(2) Chú ý nhà 1/158: Có lớp DELTA kiểm tra cửa", "", "17h00-20h30\nQLC", "17h00-21h00\nKIND\nAPOLLO", "17h00-20h30", "T6", "", "", "", "17h00-21h45\nKIND\nAPOLLO", "T6", "WIN\nATHENA\nTRY"], ["T7", "", "17h00-20h30\nQLC", "Rảnh", "17h00-21h45\nQLC", "", "T7", "17h00-20h00\nQL 158", "17h00-20h30\nApollo\nOzone", "17h00-20h30\nApollo\nOzone", "", "T7", "CAN"], ["Sáng\nCN", "", "", "", "7h30-11h45\nQLC", "7h30-11h45\nQLC", "Sáng\nCN", "", "Rảnh", "", "Rảnh", "Sáng\nCN", ""], ["CN", "", "15h00-19h00\nQLC", "", "15h00-19h00\nQLC", "", "CN", "15h00-19h00\nQL 158", "", "", "15h00-19h00\nSVIP", "CN", ""], ["Ghi chú:Hoàng Công thiết kế từ xa 081.997.9700; Hòng máy tính laptop 24h: 096.300.9992 (176 Lê Thanh Nghị). \nHàng in 196 Hồng Mai 091.216.1604. A Hùng hỗ trợ 034.396.9358", "", "", "", "", "", "", "", "", "", "", "", ""]], "TGCM": [["Lớp ", "Buổi 1", "", "", "Buổi 2", "", "", "", "Lớp ", "Buổi 1", "", "", "Buổi 2", "", "", "", "Lớp ", "Buổi 1", "", "", "Buổi 2", "", ""], ["", "Tên trợ giảng", "Giờ", "Lương", "Tên trợ giảng", "Giờ", "Lương", "", "", "Tên trợ giảng", "Giờ", "Lương", "Tên trợ giảng", "Giờ", "Lương", "", "", "Tên trợ giảng", "Giờ", "Lương", "Tên trợ giảng", "Giờ", "Lương"], ["CLC", "Thứ 3:", "", "", "Thứ 6:", "", "", "", "CAN", "Thứ 5", "", "", "Thứ 7", "", "", "", "BIG", "Thứ 2", "", "", "Thứ 4", "", ""], ["", "Phan Gia Phú 6.5", "20h00-21h30", "", "Phan Gia Phú 6.5", "18h15-20h00", "", "", "", "Bảo Anh 6.5", "", "", "Bảo Anh 6.5", "", "", "", "", "Hồng Hạnh", "", "", "Hồng Hạnh", "", ""], ["", "Lê Anh Thư", "", "", "Lê Anh Thư", "", "", "", "", "Mạnh Toàn 6.5", "", "", "Mạnh Toàn 6.5", "", "", "", "", "Đỗ Lê Anh Thư FUN", "", "", "Đỗ Lê Anh Thư FUN", "", ""], ["", "Nguyễn Hồng Ngọc 7.0", "", "", "Vương Thùy Trang 6.5", "", "", "", "", "Quỳnh Anh 7.0", "", "", "Quỳnh Anh 7.0", "", "", "", "SUN", "Thứ 3", "", "", "Thứ 5", "", ""], ["Nhóm yếu", "Mai Phương Trà", "20h30-21h30", "", "Mai Phương Trà", "19h15-20h15", "", "", "", "", "", "", "", "", "", "", "", "Nguyễn Hà Linh bạn P Thanh 6.0", "", "", "Nguyễn Hà Linh bạn P Thanh 6.0", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["BOSS", "Thứ 3", "", "", "Thứ 5", "", "", "", "", "", "", "", "", "", "", "", "HOPE", "Thứ 4", "", "", "Thứ 6", "", ""], ["", "Vương Thùy Trang 6.5", "", "", "Vương Thùy Trang 6.5", "", "", "", "WON", "Thứ 4", "", "", "Sáng CN", "", "", "", "", "Hồng Anh bạn Bảo Anh Toeic", "", "", "Hồng Anh bạn Bảo Anh Toeic", "", ""], ["", "Phan Gia Phú 6.5", "18h15-20h00", "", "Đức Tâm 6.5", "", "", "", "(NP)", "Quỳnh Anh 7.0", "", "", "Quỳnh Anh 7.0", "8h50-10h00", "", "", "", "", "", "", "", "", ""], ["", "Đỗ Lê Anh Thư FUN", "", "", "Đỗ Lê Anh Thư FUN", "", "", "", "", "Thu Minh 6.5", "", "", "Thu Minh 6.5", "", "", "", "", "", "", "", "", "", ""], ["", "Hà Anh Ngọc", "18h15-20h00", "", "Hà Anh Ngọc", "18h15-20h00", "", "", "", "Thanh Mai 7.0", "", "", "Thanh Mai 7.0", "", "", "", "SMILE", "Thứ 3", "", "", "Thứ 5", "", ""], ["", "", "", "", "", "", "", "", "", "Hà My 7.0", "", "", "Hà My 7.0", "", "", "", "", "Hà Hoàng Anh bạn Phú", "", "", "Hà Hoàng Anh bạn Phú", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Good", "Thứ 2", "", "", "Thứ 4", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Hà Hoàng Anh bạn Phú 7.0", "", "", "Hà Hoàng Anh bạn Phú 7.0", "", ""], ["HIGH", "Thứ 2", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "CAM", "Thứ 3", "", "", "Thứ 5", "", ""], ["", "Lê Anh Thư", "18h00-21h00", "", "", "", "", "", "WIN-IE", "Thứ 2", "", "", "T6", "", "", "", "", "Trúc Anh con A Hoằng", "", "", "Trúc Anh con A Hoằng", "", ""], ["", "Lê Diệp Anh", "18h00-21h00", "", "", "", "", "", "", "", "", "", "", "", "", "", "Mickey", "Thứ 3", "", "", "Thứ 5", "", ""], ["", "Phan Gia Phú 6.5", "18h00-21h00", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Mai Phương Trà", "", "", "Mai Phương Trà", "", ""], ["", "Nguyễn Hà Linh bạn Thanh 6.0", "19h10-21h00", "", "", "", "", "", "", "", "", "", "", "", "", "", "ATH", "Thứ 6", "", "", "Sáng CN", "", ""], ["", "Trịnh Phương Thanh", "19h10-21h00", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Phan Gia Phú", "", "", "Phan Gia Phú", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "Dạy lại sáng CN", "", "", "Hồng Ngọc", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["Super VIP", "Thứ 7", "", "", "CN", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "Nguyễn Hồng Ngọc 7.0", "", "", "Hà Anh Ngọc", "", "", "", "GS", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "Phương Thanh", "", "", "Quỳnh Anh 7.0", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "Đức Tâm 6.5", "", "", "Đức Tâm 6.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["Nhóm yếu", "Hồng Anh", "19h15-20h15", "", "Hồng Anh", "18h15-19h15:", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "Bận: Phương Thanh; Hồng Ngọc;\nPhương Trà", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["EVIC", "Thứ 4", "", "", "CN", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "Lê Anh Thư", "", "", "Phương Thanh", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "Vương Thùy Trang 6.5", "", "", "Vương Thùy Trang 6.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "Hà Anh Ngọc", "", "", "Hà Anh Ngọc", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "Mai Phương Trà", "19h00-21h10", "", "Đỗ Lê Anh Thư FUN", " 10h30-11h40", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""]], "Đua Đón": [["Học Sinh", "Lớp", "Lịch", "Số chiều", "Phụ huynh", "ĐT", "Địa chỉ"], ["Lan Anh em Tuấn Anh B", "SKY", "Thứ 2 và Thứ 4 học lúc\n18h15-19h45", "Cả đi và về", "Vũ Thị Thu Hương", "091 738 1828", "32 ngõ 230 Lạc Trung; Đi vào ngõ 230 Lạc Trung . Thấy siêu thị Win thì đi kịch đương xong rẽ phải 5m đến cột điện đầu tiên thì rẽ trái 5m là tới nhà có 4 cánh cửa inox"], ["Bảo Phú + Mỹ An", "CAM + SMILE", "Thứ 3 và Thứ 5 học lúc\n18h30-20h00", "Chỉ đưa đi học", "Nguyễn Hữu Thịnh/\nĐào Thị Thuỷ", "098.352.0087\nSố khác 039.651.9487", "Số 2 ngõ 352 Trương Định; "], ["Lê Minh Hà", "GOLD", "Thứ 2 và Thứ 4 học lúc\n18h30-20h00", "Cả đi và về", "Lê Minh Hà", "038 996 7035", "Số 7 ngõ 70 phố 8/3 a"], ["Uyên Nhi", "HIGH", "Thứ từ 18h00-20h45", "Chỉ đưa lúc về", "", "094.627.0613", "Ra bến xe bus Bạch Mai"], ["", "", "", "", "", "", ""], ["", "", "", "", "", "", ""], ["Đặt Grab khi PH gọi", "", "", "", "", "", ""], ["Minh Đức + Mỹ Tâm", "KIND + HOPE", "", "", "", "", "Số 8 ngách 11b ngõ 70 thanh lân"], ["Dương Kiều Trang", "MOON", "", "", "", "", "9 ngõ 75 giải phóng"], ["Huy Hoàng", "HIGH", "", "", "", "", "31 Hàng Bài"]], "Gia sư": [["Học Sinh", "Lớp", "Lịch", "Gia sư", "Vị trí", "Quản lý"], ["Trần Minh Quân", "KIND", "Học GS thứ 2 từ 18h30-20h00\n(Thay cho buổi thứ 6-KIND)", "Mai Phương Trà", "T1 nhà 60B\n(Phía sau nhà 58)", "In phiếu lớp KIND\nhôm thứ 6 (Trà gửi/nếu nghỉ trợ giảng vào nhóm KIND/hoặc gọi cô Tân)"], ["Đào Hữu Anh Quân", "WON", "Học GS thứ 7 từ 20h00-21h30\n(Thay cho buổi thứ 4 - WON)", "Thùy Trang", "T1 nhà 60B\n(Phía sau nhà 58)", "Trợ giảng chuyên môn in phiếu ở ngoài"], ["Nguyễn Bảo Nam ", "SMILE", "Học GS thứ 2 từ 19h00-20h30", "Hồng Anh", "Tại nhà HS", "Không phải quan tâm"], ["HIGH học lại:\nCố định Huy Hoàng;\nLê Quang Vinh", "", "Sáng CN: 9h30-11h00", "Hồng Ngọc", "T2 nhà 58", "Chỉ in phát sinh khi TG yêu cầu"], ["", "", "", "", "", ""], ["", "", "", "", "", ""]], "Do An": [["Lớp", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 7", "sáng CN", "chiều CN", ""], ["", "High", "Boss", "Vic", "Boss", "SV", "Vic", "SV", ""], ["Giờ lấy", "19h00-1\n9h15", "18h45-\n19h00", "18h45-\n19h00", "18h45-\n19h00", "18h45-\n19h00", "", "17h45-\n18h00", ""], ["Tuần 1", "Bánh gà \nràn pho mai", "Bánh gà \nràn pho mai", "Bánh gà \nrán pho mai", "Bánh Bông Lan\nSolite", "Bánh gà \nràn pho mai", "Bánh Bông Lan\nSolite", "Bánh Bông Lan\nSolite", ""], ["Tuần 2", "Khoai \nTây ", "Khoai \nTây ", "Khoai \nTây ", "Xúc\nXích", "Khoai \nTây ", "Xúc\nXích", "Xúc\nXích", ""], ["Tuần 3", "Thịt xiên", "Thịt xiên", "Thịt xiên", "Su kem", "Thịt xiên", "Bánh gà \nrán pho mai", "Bánh gà \nràn pho mai", ""], ["Tuần 4", "Bánh Bông Lan\nSolite", "Khoai \nTây ", "Caramen", "Caramen", "Caramen", "Su kem", "Su kem", ""], ["", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "ĐT", "Định lg", "Giá", "Phát"], ["", "Thịt xiên ông Ất phố Bùi Ngọc Dương", "", "", "", "038.957.7050", "", "9k", "1"], ["", "Thịt xiên bà béo Trường Đảng", "", "", "", "096.166.9162", "", "10k", "1"], ["", "Khoai tây phomai", "", "", "", "", "", "10k", "1"], ["", "Hộp bánh bông lan Solite Tạp hóa 133 Hồng Mai", "", "", "", "", "20 cái/hộp", "45K", "2"], ["", "Xúc Xúc xích ponnie", "", "", "", "", "5 cái/gói", "20K", "2"], ["", "Su kem Quỳnh Mai", "", "", "", "093.451.9651", "8 cái/hộp", "15K", "2"], ["", "Caramen Quỳnh Mai", "", "", "", "098.492.9515", "", "", "1"], ["", "", "", "", "", "", "", "", ""], ["", "Món xịn", "", "", "", "", "", "", ""], ["", "Trà sữa 1989", "", "", "", "089.857.0906", "", "", ""], ["", "Trà tranh (Tùng nước ép cạnh 1989(", "", "", "", "088.9976.787", "", "", ""], ["", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", ""]]},meta:{file:"3. DIEU HANH HA VI 22.9.26 FULL (dữ liệu gốc)",date:"22.9.26"}};
+const CACHE="hv_dieuhanh_cache_v2";
+let D, TABLES, META, PKG;
+let rawFs=14;
+let isAdmin=false, dirty=false, saving=false, pendingRemote=null, lastCloudJSON=null, backedUp=false, fbOK=false, firstData=true, cloudTime=null;
+
+function normalizePkg(pkg){
+  const sheets={};
+  Object.entries(pkg.sheets||{}).forEach(([n,rows])=>{sheets[n]=cleanRows(rows);});
+  return {sheets,meta:pkg.meta||{}};
+}
+function fmtTime(d){return d?d.getDate()+'/'+(d.getMonth()+1)+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'):'';}
+function loadData(pkg){
+  PKG=normalizePkg(pkg);
+  D=parseAll(PKG.sheets); TABLES=buildTables(PKG.sheets); META=PKG.meta||{};
+  if(!TABLES.find(t=>t.id===rawTab)) rawTab=TABLES[0]?TABLES[0].id:'__all';
+  updHeader();
+}
+function updHeader(){
+  const u=document.getElementById('upd');
+  u.textContent=(META.date?'Dữ liệu '+META.date:'')+(cloudTime?' · sửa lần cuối '+fmtTime(cloudTime):'');
+  u.title=META.file||'';
+}
+function reparse(){ D=parseAll(PKG.sheets); TABLES=buildTables(PKG.sheets); }
+function setStatus(txt,cls){const s=document.getElementById('status');s.textContent=txt;s.className='status '+(cls||'');}
+
 const DAYS=[["T2","Thứ 2"],["T3","Thứ 3"],["T4","Thứ 4"],["T5","Thứ 5"],["T6","Thứ 6"],["T7","Thứ 7"],["CN","Chủ nhật"]];
 const daysEl=document.getElementById('days'), main=document.getElementById('main'), q=document.getElementById('q');
 
@@ -351,7 +483,7 @@ const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"
 const tel=h=>h.replace(/(0\d{2}[.\s]?\d{3,4}[.\s]?\d{3,4})/g,m=>{const n=m.replace(/[.\s]/g,'');return /^\d{10}$/.test(n)?`<a class="tel" href="tel:${n}">📞 ${m}</a>`:m;});
 const t=s=>tel(esc(s)).replace(/\n/g,'<br>');
 const sess=s=>s?`<span class="sess">${s}</span>`:'';
-const card=(icon,title,n,body,cls='')=>`<div class="card ${cls}"><h3>${icon} ${title}${n!==null?`<span class="n">${n}</span>`:''}</h3><div class="body">${body}</div></div>`;
+const card=(icon,title,n,body,cls='',ek='')=>`<div class="card ${cls}"><h3>${icon} ${title}${ek?`<button class="editlink admin-only" data-edit="${ek}">✏️ Sửa</button>`:''}${n!==null?`<span class="n">${n}</span>`:''}</h3><div class="body">${body}</div></div>`;
 const none=s=>`<div class="none">${s}</div>`;
 
 function renderNav(){
@@ -425,16 +557,16 @@ function renderDay(day){
       ${shops.length?`<div class="shop">🛒 ${shops.map(s=>`<b>${esc(s.ten)}</b>${s.gia?' – '+esc(s.gia):''}${s.dl?' ('+esc(s.dl)+')':''}${s.phat?' – phát '+esc(s.phat):''}${s.dt?' '+tel(esc(s.dt)):''}`).join('<br>🛒 ')}</div>`:''}</div>`;});
   if(!fd) fd=none('Không phát đồ ăn');
 
-  main.innerHTML=`<div class="dayhead"><h2>${name}</h2>
+  main.innerHTML=`<div class="adminbar admin-only">✏️ Bạn đang ở <b>chế độ sửa</b>. Bấm <b>✏️ Sửa</b> trên từng khung hoặc vào <b>📑 Bảng gốc</b> để sửa trực tiếp từng ô – mọi thay đổi tự lưu lên máy chủ.</div><div class="dayhead"><h2>${name}</h2>
      <div class="stat"><b>${nCls}</b>buổi lớp</div><div class="stat"><b>${nWork}</b>TG quản lý</div>
      <div class="stat"><b>${nDD}</b>đưa đón</div><div class="stat"><b>${nGS}</b>gia sư</div><div class="stat"><b>${(D.food[day]||[]).length}</b>suất đồ ăn</div></div>
    <div class="grid">
-     ${notes.length?card('⚠️','Việc cần chú ý',null,`<ul>${notes.map(n=>`<li>${n}</li>`).join('')}</ul>`,'warn full'):''}
-     ${card('📚','Lớp học & trợ giảng chuyên môn',nCls,clsBody,'full')}
-     ${card('🧑‍💼','Trợ giảng quản lý (Lịch TG)',nWork,tgBody)}
-     ${card('🚗','Đưa đón',nDD,dd)}
-     ${card('🎓','Gia sư',nGS,gs)}
-     ${card('🍪','Đồ ăn',(D.food[day]||[]).length,fd)}
+     ${notes.length?card('⚠️','Việc cần chú ý',null,`<ul>${notes.map(n=>`<li>${n}</li>`).join('')}</ul>`,'warn full','lichtg'):''}
+     ${card('📚','Lớp học & trợ giảng chuyên môn',nCls,clsBody,'full','tgcm')}
+     ${card('🧑‍💼','Trợ giảng quản lý (Lịch TG)',nWork,tgBody,'','lichtg')}
+     ${card('🚗','Đưa đón',nDD,dd,'','duadon')}
+     ${card('🎓','Gia sư',nGS,gs,'','giasu')}
+     ${card('🍪','Đồ ăn',(D.food[day]||[]).length,fd,'','doan')}
    </div>`;
 }
 function matchFood(item,shop){
@@ -457,6 +589,8 @@ function renderInfo(){
   </div>`;
 }
 
+
+
 // ================= RAW TABLE VIEW =================
 function fmt(s,term){
   let h=esc(s);
@@ -466,46 +600,258 @@ function fmt(s,term){
   else if(/^Rảnh$/i.test(s.trim())) h=`<span class="free">${h}</span>`;
   return h;
 }
-function buildTable(sh,term){
-  const rows=sh.rows,n=rows[0].length; let html='<table class="raw"><thead>',shown=0;
-  for(let r=0;r<sh.hdr;r++){html+='<tr>';const row=rows[r];
-    for(let c=0;c<n;c++){let span=1;if(sh.hdr>1&&r===0){while(c+span<n&&!row[c+span]&&rows[1][c+span])span++;}
+function buildTable(rows,hdr,term){
+  const n=rows[0].length; let html='<table class="raw"><thead>',shown=0;
+  for(let r=0;r<hdr;r++){html+='<tr>';const row=rows[r];
+    for(let c=0;c<n;c++){let span=1;if(hdr>1&&r===0){while(c+span<n&&!row[c+span]&&rows[1][c+span])span++;}
       html+=`<th colspan="${span}">${fmt(row[c],term)}</th>`;c+=span-1;}html+='</tr>';}
   html+='</thead><tbody>';
-  for(let r=sh.hdr;r<rows.length;r++){const row=rows[r],filled=row.filter(x=>x).length;
+  for(let r=hdr;r<rows.length;r++){const row=rows[r],filled=row.filter(x=>x).length;
     if(!filled){if(!term)html+=`<tr class="gap"><td colspan="${n}"></td></tr>`;continue;}
     if(term&&!row.some(x=>x.toLowerCase().includes(term.toLowerCase())))continue; shown++;
     if(filled===1&&row[0]&&row[0].length>40){html+=`<tr><td class="note" colspan="${n}">📝 ${fmt(row[0],term)}</td></tr>`;continue;}
-    html+='<tr>'+row.map((x,i)=>`<td class="${i===0?'first':''}">${fmt(x,term)}</td>`).join('')+'</tr>';}
-  return {html:html+'</tbody></table>'+(term&&!shown?'<div class="none" style="padding:20px">Không tìm thấy</div>':''),shown};
+    html+='<tr>'+row.map((x,i)=>`<td class="${i===0?'first ':''}${!x.includes('\n')&&x.length<=32?'nw':''}">${fmt(x,term)}</td>`).join('')+'</tr>';}
+  return {html:html+'</tbody></table>'+(term&&!shown?'<div class="none" style="padding:14px 18px">Không tìm thấy</div>':''),shown};
+}
+function sheetShown(s,term){return s.blocks.reduce((a,b)=>a+buildTable(b.rows,s.hdr,term).shown,0);}
+
+// ---- edit grid (admin)
+const sheetNames=()=>Object.keys(PKG.sheets);
+function buildEditTable(si,name,eb,b,term){
+  const rows=PKG.sheets[name]; let html='<table class="raw edit"><tbody>';
+  for(let r=0;r<=b.last;r++){
+    const row=rows[r]; if(!row) continue;
+    if(term&&r>=eb.hdr&&!b.cols.some(j=>(row[j]||'').toLowerCase().includes(term.toLowerCase()))) continue;
+    html+=`<tr class="${r<eb.hdr?'h':''}"><td class="gut"><button class="add" data-ins="${si},${r},${b.c0},${b.c1}" title="Chèn dòng trống bên dưới">＋</button><button class="del" data-del="${si},${r},${b.c0},${b.c1}" title="Xoá dòng này">🗑</button>${r+1}</td>`
+      +b.cols.map(j=>`<td contenteditable="true" spellcheck="false" data-si="${si}" data-r="${r}" data-c="${j}">${esc(row[j]||'')}</td>`).join('')+'</tr>';
+  }
+  return html+`</tbody></table>`;
 }
 function renderRaw(){
   const term=q.value.trim();
   const tabs=[...TABLES.map(s=>[s.id,s.title]),['__all','Xem tất cả']];
   const list=rawTab==='__all'?TABLES:TABLES.filter(s=>s.id===rawTab);
-  main.innerHTML=`<div class="subtabs">${tabs.map(([id,n])=>`<button data-raw="${id}" class="${id===rawTab?'active':''}">${n}${term&&id!=='__all'?` (${buildTable(TABLES.find(s=>s.id===id),term).shown})`:''}</button>`).join('')}</div>`
-    +list.map(s=>`<section><h2>${s.title}<span>${s.rows.length-s.hdr} dòng</span></h2><div class="wrap">${buildTable(s,term).html}</div></section>`).join('');
+  main.classList.toggle('rawall',rawTab==='__all');
+  let html=`<div class="subtabs">${tabs.map(([id,n])=>`<button data-raw="${esc(id)}" class="${id===rawTab?'active':''}">${esc(n)}${term&&id!=='__all'&&!isAdmin?` (${sheetShown(TABLES.find(s=>s.id===id),term)})`:''}</button>`).join('')}
+     <div class="zoom">Cỡ chữ <button data-zoom="-1">A−</button><button data-zoom="1">A+</button></div></div>`;
+  if(isAdmin){
+    html+=`<div class="edithint">✏️ <b>Chế độ sửa:</b> bấm vào ô bất kỳ để sửa. <kbd>Enter</kbd> xuống ô dưới · <kbd>Alt</kbd>+<kbd>Enter</kbd> xuống dòng trong ô · <kbd>Tab</kbd> sang ô bên phải · <kbd>Esc</kbd> xong. Rê chuột vào số dòng bên trái để <b>＋ chèn</b> / <b>🗑 xoá</b> dòng. Thay đổi <b>tự lưu</b> lên máy chủ sau 1 giây.</div>`;
+    html+=list.map(s=>{const si=sheetNames().indexOf(s.id); const eb=buildEditBlocks(s.id,PKG.sheets[s.id]);
+      return `<section><h2>${esc(s.title)}<span>Sheet: ${esc(s.id)}</span></h2>`+eb.blocks.map(b=>`${b.caption?`<div class="cap">Lớp: <b>${esc(b.caption)}</b></div>`:''}<div class="wrap">${buildEditTable(si,s.id,eb,b,term)}</div><button class="addrow" data-ins="${si},${b.last},${b.c0},${b.c1}">＋ Thêm dòng</button>`).join('')+`</section>`;}).join('');
+  }else{
+    html+=list.map(s=>`<section><h2>${esc(s.title)}<span>${s.count} dòng</span></h2>`
+      +s.blocks.map(b=>`${b.caption?`<div class="cap">Lớp: <b>${esc(b.caption)}</b></div>`:''}<div class="wrap">${buildTable(b.rows,s.hdr,term).html}</div>`).join('')
+      +`</section>`).join('');
+  }
+  main.innerHTML=html;
+  main.querySelectorAll('table.raw').forEach(t=>{t.style.setProperty('--rawfs',rawFs+'px');
+    let top=0; t.querySelectorAll('thead tr').forEach(tr=>{tr.querySelectorAll('th').forEach(th=>th.style.top=top+'px'); top+=tr.offsetHeight;});});
 }
 
 function render(){
   renderNav();
+  main.classList.remove('rawall');
   if(view==='raw') renderRaw(); else if(view==='info') renderInfo();
   else { if(!DAYS.some(d=>d[0]===view)) view=todayKey; renderDay(view); }
 }
-daysEl.addEventListener('click',e=>{const b=e.target.closest('button');if(b){view=b.dataset.v;try{history.replaceState(null,'','#'+view);}catch(_){}render();window.scrollTo(0,0);}});
-main.addEventListener('click',e=>{const b=e.target.closest('button[data-raw]');if(b){rawTab=b.dataset.raw;renderRaw();}});
+function go(v){view=v;try{history.replaceState(null,'','#'+view);}catch(_){}render();window.scrollTo(0,0);}
+daysEl.addEventListener('click',e=>{const b=e.target.closest('button');if(b)go(b.dataset.v);});
+main.addEventListener('click',e=>{
+  const z=e.target.closest('button[data-zoom]');if(z){rawFs=Math.max(11,Math.min(20,rawFs+ +z.dataset.zoom));renderRaw();return;}
+  const b=e.target.closest('button[data-raw]');if(b){rawTab=b.dataset.raw;renderRaw();return;}
+  const ed=e.target.closest('button[data-edit]');if(ed){const t=TABLES.find(t=>norm(t.id).includes(ed.dataset.edit)); if(t){rawTab=t.id;} go('raw');return;}
+  const ins=e.target.closest('[data-ins]');if(ins){rowOp('ins',ins.dataset.ins);return;}
+  const del=e.target.closest('[data-del]');if(del){rowOp('del',del.dataset.del);return;}
+});
 q.addEventListener('input',()=>view==='raw'&&renderRaw());
-document.addEventListener('keydown',e=>{if(e.target===q)return;const i=DAYS.findIndex(d=>d[0]===view);if(i<0)return;
-  if(e.key==='ArrowRight'&&i<6){view=DAYS[i+1][0];render();} if(e.key==='ArrowLeft'&&i>0){view=DAYS[i-1][0];render();}});
-// ---------- upload
+document.addEventListener('keydown',e=>{if(e.target===q||e.target.isContentEditable||document.getElementById('modal').classList.contains('on'))return;const i=DAYS.findIndex(d=>d[0]===view);if(i<0)return;
+  if(e.key==='ArrowRight'&&i<6){go(DAYS[i+1][0]);} if(e.key==='ArrowLeft'&&i>0){go(DAYS[i-1][0]);}});
+
+// ---- cell editing
+const cellVal=el=>el.innerText.replace(/\u00a0/g,' ').replace(/\n+$/,'').replace(/^\n+/,'');
+main.addEventListener('input',e=>{
+  const el=e.target.closest('td[contenteditable]'); if(!el||!isAdmin) return;
+  const name=sheetNames()[+el.dataset.si], r=+el.dataset.r, c=+el.dataset.c;
+  const rows=PKG.sheets[name]; if(!rows[r]) return;
+  rows[r][c]=cellVal(el); markDirty();
+});
+main.addEventListener('focusout',e=>{
+  if(!e.target.closest||!e.target.closest('td[contenteditable]')) return;
+  setTimeout(()=>{ if(document.activeElement&&document.activeElement.isContentEditable) return;
+    if(pendingRemote&&!dirty){const p=pendingRemote;pendingRemote=null;applyRemote(p);} },50);
+});
+main.addEventListener('keydown',e=>{
+  const el=e.target.closest&&e.target.closest('td[contenteditable]'); if(!el) return;
+  if(e.key==='Escape'){el.blur();return;}
+  if(e.key==='Enter'&&(e.altKey||e.shiftKey)){e.preventDefault();document.execCommand('insertLineBreak');return;}
+  if(e.key==='Enter'){e.preventDefault();
+    const tr=el.parentElement, idx=[...tr.children].indexOf(el);
+    let nx=tr.nextElementSibling; while(nx&&!nx.children[idx]) nx=nx.nextElementSibling;
+    if(nx&&nx.children[idx]&&nx.children[idx].isContentEditable){focusCell(nx.children[idx]);} else el.blur();}
+});
+main.addEventListener('paste',e=>{
+  const el=e.target.closest&&e.target.closest('td[contenteditable]'); if(!el) return;
+  e.preventDefault(); const txt=(e.clipboardData||window.clipboardData).getData('text/plain').replace(/\r\n?/g,'\n');
+  document.execCommand('insertText',false,txt);
+});
+function focusCell(td){td.focus();const r=document.createRange();r.selectNodeContents(td);r.collapse(false);const s=getSelection();s.removeAllRanges();s.addRange(r);}
+function rowOp(op,spec){
+  if(!isAdmin) return;
+  const [si,r,c0,c1]=spec.split(',').map(Number); const name=sheetNames()[si]; const rows=PKG.sheets[name];
+  const w=rows[0].length, full=c0===0&&c1>=w, empty=()=>Array(w).fill('');
+  if(op==='del'){
+    const row=rows[r]; const has=row&&row.slice(c0,c1).some(Boolean);
+    if(has&&!confirm('Xoá dòng '+(r+1)+'?\n\n'+row.slice(c0,c1).filter(Boolean).join(' | ').slice(0,200))) return;
+    if(full) rows.splice(r,1);
+    else { for(let i=r;i<rows.length-1;i++) for(let c=c0;c<c1;c++) rows[i][c]=rows[i+1][c]; for(let c=c0;c<c1;c++) rows[rows.length-1][c]=''; }
+  }else{
+    if(full) rows.splice(r+1,0,empty());
+    else { if(rows[rows.length-1].slice(c0,c1).some(Boolean)||r+1>=rows.length) rows.push(empty());
+      for(let i=rows.length-1;i>r+1;i--) for(let c=c0;c<c1;c++) rows[i][c]=rows[i-1][c];
+      for(let c=c0;c<c1;c++) rows[r+1][c]=''; }
+  }
+  const y=window.scrollY; markDirty(); renderRaw(); window.scrollTo(0,y);
+  if(op==='ins'){const tds=[...main.querySelectorAll(`td[contenteditable][data-si="${si}"][data-r="${r+1}"]`)].filter(td=>+td.dataset.c>=c0&&+td.dataset.c<c1); const td=(norm(name).includes('tgcm')&&tds[1])?tds[1]:tds[0]; if(td) focusCell(td);}
+}
+
+// ---- saving
+let saveT;
+function markDirty(){ dirty=true; setStatus('✏️ Chưa lưu…','warn'); clearTimeout(saveT); saveT=setTimeout(saveNow,1000); }
+async function saveNow(note){
+  clearTimeout(saveT);
+  if(!isAdmin||!window.FB){ setStatus('⚠️ Chưa lưu được (mất kết nối)','err'); return false; }
+  if(saving){ saveT=setTimeout(saveNow,600); return false; }
+  saving=true; setStatus('⏳ Đang lưu…','busy');
+  const json=JSON.stringify(PKG.sheets);
+  try{
+    if(!backedUp&&lastCloudJSON&&lastCloudJSON!==json){ await FB.backup(lastCloudJSON,META,note||'Trước khi sửa'); backedUp=true; }
+    const wasDirty=dirty; dirty=false;
+    await FB.save(json,META);
+    lastCloudJSON=json; reparse(); cacheLocal();
+    saving=false; setStatus(dirty?'✏️ Chưa lưu…':'✅ Đã lưu '+fmtTime(new Date()),dirty?'warn':'ok');
+    if(dirty) saveT=setTimeout(saveNow,800);
+    return true;
+  }catch(e){
+    saving=false; dirty=true; console.error(e);
+    setStatus('❌ Lưu thất bại','err');
+    toast('❌ Không lưu được lên máy chủ: '+esc(fbErr(e))+'<br>Dữ liệu vẫn còn trên máy này, sẽ thử lại khi bạn sửa tiếp.',true);
+    return false;
+  }
+}
+function cacheLocal(){ try{localStorage.setItem(CACHE,JSON.stringify({sheets:PKG.sheets,meta:META,t:cloudTime?cloudTime.getTime():0}));}catch(_){} }
+window.addEventListener('beforeunload',e=>{ if(dirty||saving){e.preventDefault();e.returnValue='';} });
+
+// ---- toast + modal
 const toastEl=document.getElementById('toast'); let toastT;
-function toast(msg,err){toastEl.innerHTML=msg;toastEl.className='on'+(err?' err':'');clearTimeout(toastT);toastT=setTimeout(()=>toastEl.className='',err?9000:5000);}
+function toast(msg,err){toastEl.innerHTML=msg;toastEl.className='on'+(err?' err':'');clearTimeout(toastT);toastT=setTimeout(()=>toastEl.className='',err?9000:4500);}
+const modal=document.getElementById('modal'), mbox=document.getElementById('mbox');
+function openModal(html,wide){mbox.className='mbox'+(wide?' wide':'');mbox.innerHTML='<button class="mx" data-close>×</button>'+html;modal.classList.add('on');const i=mbox.querySelector('input');if(i)setTimeout(()=>i.focus(),50);}
+function closeModal(){modal.classList.remove('on');}
+modal.addEventListener('click',e=>{if(e.target===modal||e.target.closest('[data-close]'))closeModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.classList.contains('on'))closeModal();});
+
+// ---- mật khẩu (kiểm tra ngay trên trang, không dùng Firebase Auth)
+const DEFAULT_PW_HASH='f78e30b348e6d4942d553e088f09f302b8e5a63565a606022e224244f687e89f'; // mật khẩu mặc định: 123456
+let PW_HASH=DEFAULT_PW_HASH;
+const ADMIN_KEY='hv_admin_ok';
+function sha256hex(str){ // SHA-256 thuần JS (chạy cả khi không có crypto.subtle)
+  const K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+  const bytes=[...new TextEncoder().encode(str)], l=bytes.length*8;
+  bytes.push(0x80); while(bytes.length%64!==56) bytes.push(0);
+  for(let i=7;i>=0;i--) bytes.push(i>=4?0:(l>>>(i*8))&255);
+  let H=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+  const rr=(x,n)=>(x>>>n)|(x<<(32-n));
+  for(let o=0;o<bytes.length;o+=64){
+    const w=new Array(64);
+    for(let i=0;i<16;i++) w[i]=(bytes[o+4*i]<<24)|(bytes[o+4*i+1]<<16)|(bytes[o+4*i+2]<<8)|bytes[o+4*i+3];
+    for(let i=16;i<64;i++){const s0=rr(w[i-15],7)^rr(w[i-15],18)^(w[i-15]>>>3), s1=rr(w[i-2],17)^rr(w[i-2],19)^(w[i-2]>>>10); w[i]=(w[i-16]+s0+w[i-7]+s1)|0;}
+    let [a,b,c,d,e,f,g,h]=H;
+    for(let i=0;i<64;i++){const S1=rr(e,6)^rr(e,11)^rr(e,25), ch=(e&f)^(~e&g), t1=(h+S1+ch+K[i]+w[i])|0, S0=rr(a,2)^rr(a,13)^rr(a,22), mj=(a&b)^(a&c)^(b&c), t2=(S0+mj)|0;
+      h=g;g=f;f=e;e=(d+t1)|0;d=c;c=b;b=a;a=(t1+t2)|0;}
+    H=H.map((x,i)=>(x+[a,b,c,d,e,f,g,h][i])|0);
+  }
+  return H.map(x=>(x>>>0).toString(16).padStart(8,'0')).join('');
+}
+const pwHash=pw=>sha256hex('havi:'+pw);
+function fbErr(e){
+  const c=(e&&e.code)||'', m=(e&&e.message)||String(e);
+  if(/network|unavailable/.test(c)) return 'Không có kết nối mạng.';
+  if(/permission-denied/.test(c)) return 'Firestore từ chối ghi – kiểm tra phần Rules (dán nội dung file firestore.rules).';
+  return m;
+}
+function setAdmin(on){
+  isAdmin=on; document.body.classList.toggle('admin',on); backedUp=false;
+  try{ on?localStorage.setItem(ADMIN_KEY,PW_HASH):localStorage.removeItem(ADMIN_KEY); }catch(_){}
+  if(on) setStatus('✏️ Chế độ sửa'+(fbOK?' · đã đồng bộ':''),fbOK?'ok':'warn'); else setStatus(fbOK?'☁️ Trực tuyến':'⚠️ Ngoại tuyến',fbOK?'ok':'err');
+  render();
+}
+function loginModal(){
+  openModal(`<h3>🔒 Nhập mật khẩu để sửa</h3>
+    <p>Sau khi nhập đúng mật khẩu, bạn có thể sửa trực tiếp mọi thông tin. Thay đổi được lưu lên máy chủ và mọi người đều thấy ngay.</p>
+    <form id="lf"><input id="pw1" type="password" placeholder="Mật khẩu" autocomplete="current-password">
+    <div class="merr" id="lerr"></div>
+    <div class="row"><button type="button" class="mbtn g" data-close>Huỷ</button><button class="mbtn p" id="lbtn">Vào chế độ sửa</button></div></form>`);
+  document.getElementById('lf').onsubmit=ev=>{
+    ev.preventDefault(); const p1=document.getElementById('pw1').value, err=document.getElementById('lerr');
+    if(!p1){err.textContent='Hãy nhập mật khẩu.';return;}
+    if(pwHash(p1)!==PW_HASH){err.textContent='Sai mật khẩu.';document.getElementById('pw1').select();return;}
+    closeModal(); setAdmin(true); toast('✅ Đã vào chế độ sửa');
+    if(fbOK&&lastCloudJSON===null&&!saving){dirty=true;saveNow();}
+  };
+}
+document.getElementById('btnLogin').onclick=()=>loginModal();
+const menu=document.getElementById('menu');
+document.getElementById('btnMenu').onclick=e=>{e.stopPropagation();menu.classList.toggle('on');};
+document.addEventListener('click',e=>{if(!e.target.closest('.menuwrap'))menu.classList.remove('on');});
+menu.addEventListener('click',async e=>{
+  const b=e.target.closest('button[data-act]'); if(!b) return; menu.classList.remove('on');
+  const a=b.dataset.act;
+  if(a==='export') exportExcel();
+  if(a==='logout'){ if(dirty) await saveNow(); setAdmin(false); toast('👋 Đã thoát chế độ sửa'); }
+  if(a==='pw') pwModal();
+  if(a==='history') historyModal();
+});
+function pwModal(){
+  openModal(`<h3>🔑 Đổi mật khẩu</h3><p>Mật khẩu mới áp dụng cho <b>tất cả mọi người</b> (được lưu dạng mã hoá trên máy chủ).</p>
+   <form id="pf"><input id="o" type="password" placeholder="Mật khẩu hiện tại" autocomplete="current-password"><input id="n1" type="password" placeholder="Mật khẩu mới (≥ 4 ký tự)" autocomplete="new-password"><input id="n2" type="password" placeholder="Nhập lại mật khẩu mới" autocomplete="new-password">
+   <div class="merr" id="perr"></div><div class="row"><button type="button" class="mbtn g" data-close>Huỷ</button><button class="mbtn p" id="pbtn">Đổi mật khẩu</button></div></form>`);
+  document.getElementById('pf').onsubmit=async ev=>{ev.preventDefault();
+    const o=document.getElementById('o').value,n1=document.getElementById('n1').value,n2=document.getElementById('n2').value,err=document.getElementById('perr'),btn=document.getElementById('pbtn');
+    if(pwHash(o)!==PW_HASH){err.textContent='Mật khẩu hiện tại không đúng.';return;}
+    if(n1.length<4){err.textContent='Mật khẩu mới phải có ít nhất 4 ký tự.';return;} if(n1!==n2){err.textContent='Hai lần nhập không khớp.';return;}
+    if(!window.FB){err.textContent='Chưa kết nối máy chủ – không đổi được mật khẩu.';return;}
+    btn.disabled=true; const h=pwHash(n1);
+    const old=PW_HASH; PW_HASH=h; try{localStorage.setItem(ADMIN_KEY,h);}catch(_){}
+    try{await FB.setPw(h); closeModal();toast('✅ Đã đổi mật khẩu cho mọi người');}catch(e){PW_HASH=old; try{localStorage.setItem(ADMIN_KEY,old);}catch(_){} err.textContent=fbErr(e);btn.disabled=false;}};
+}
+
+async function historyModal(){
+  openModal('<h3>🕘 Lịch sử các bản lưu</h3><p>Mỗi lần mở chế độ sửa hoặc tải file Excel lên, bản cũ được lưu lại ở đây. Bấm <b>Khôi phục</b> để quay về bản đó.</p><div id="hl">⏳ Đang tải…</div>',true);
+  try{
+    const list=await FB.history();
+    const hl=document.getElementById('hl'); if(!hl) return;
+    if(!list.length){hl.innerHTML='<div class="none">Chưa có bản lưu nào.</div>';return;}
+    hl.innerHTML='<table class="hist">'+list.map((h,i)=>`<tr><td>${fmtTime(h.at&&h.at.toDate?h.at.toDate():null)||'—'}</td><td>${esc(h.note||'')}</td><td>${esc((h.meta&&h.meta.date)||'')}</td><td style="text-align:right"><button class="mbtn g" data-restore="${i}">Khôi phục</button></td></tr>`).join('')+'</table>';
+    hl.onclick=async e=>{const b=e.target.closest('[data-restore]'); if(!b) return; const h=list[+b.dataset.restore];
+      if(!confirm('Khôi phục bản lưu lúc '+fmtTime(h.at&&h.at.toDate?h.at.toDate():null)+'?\nDữ liệu hiện tại sẽ được lưu vào lịch sử trước.')) return;
+      try{ await FB.backup(JSON.stringify(PKG.sheets),META,'Trước khi khôi phục'); }catch(_){}
+      loadData({sheets:JSON.parse(h.data),meta:h.meta||{}}); render(); backedUp=true; dirty=true; await saveNow(); closeModal(); toast('✅ Đã khôi phục');};
+  }catch(e){const hl=document.getElementById('hl'); if(hl) hl.innerHTML='<div class="merr">'+esc(fbErr(e))+'</div>';}
+}
+function exportExcel(){
+  const wb=XLSX.utils.book_new();
+  Object.entries(PKG.sheets).forEach(([n,rows])=>{const ws=XLSX.utils.aoa_to_sheet(rows); XLSX.utils.book_append_sheet(wb,ws,n.slice(0,31));});
+  const d=new Date(); XLSX.writeFile(wb,`DIEU HANH HA VI ${d.getDate()}.${d.getMonth()+1}.${String(d.getFullYear()).slice(2)}.xlsx`);
+}
+
+// ---- upload Excel (admin)
 function sheetRows(ws){
   if(!ws||!ws['!ref']) return [];
   const r=XLSX.utils.decode_range(ws['!ref']); r.s.r=0; r.s.c=0;
   return XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false,blankrows:true,range:r});
 }
 async function handleFiles(files){
+  if(!isAdmin){ toast('🔒 Hãy nhập mật khẩu để tải file lên.',true); return; }
   files=[...files]; if(!files.length) return;
   const sheets={}; const names=[];
   try{
@@ -525,29 +871,87 @@ async function handleFiles(files){
   }catch(e){ toast('❌ Không đọc được file: '+esc(e.message||String(e)),true); return; }
   const test=parseAll(sheets);
   if(test.missing.length===5){ toast('❌ Không tìm thấy sheet nào phù hợp (Lịch TG, TGCM, Đưa đón, Gia sư, Đồ ăn).<br>Sheet trong file: '+esc(Object.keys(sheets).join(', ')),true); return; }
+  if(!confirm('Thay TOÀN BỘ dữ liệu hiện tại bằng file "'+names.join(', ')+'"?\n(Bản hiện tại sẽ được lưu vào Lịch sử để khôi phục nếu cần)')) return;
+  try{ await FB.backup(JSON.stringify(PKG.sheets),META,'Trước khi tải file '+names.join(', ')); backedUp=true; }catch(e){ toast('❌ '+esc(fbErr(e)),true); return; }
   const dm=names.join(' ').match(/(\d{1,2}\.\d{1,2}\.\d{2,4})/);
-  const d=new Date();
-  const pkg={sheets,meta:{file:names.join(', '),date:dm?dm[1]:'',saved:d.getDate()+'/'+(d.getMonth()+1)+' '+d.getHours()+':'+String(d.getMinutes()).padStart(2,'0')}};
-  loadData(pkg); render();
-  let saved=true; try{localStorage.setItem(STORE,JSON.stringify(pkg));}catch(_){saved=false;}
-  toast('✅ Đã cập nhật từ <b>'+esc(names.join(', '))+'</b> — '+Object.keys(sheets).length+' sheet.'
-    +(test.missing.length?'<br>⚠ Không thấy sheet: '+test.missing.join(', '):'')
-    +(saved?'':'<br>(Trình duyệt không cho lưu – lần sau mở lại phải tải lên lại)'), test.missing.length>0);
+  loadData({sheets,meta:{file:names.join(', '),date:dm?dm[1]:''}}); render();
+  dirty=true; const ok=await saveNow();
+  if(ok) toast('✅ Đã cập nhật từ <b>'+esc(names.join(', '))+'</b> và lưu lên máy chủ.'+(test.missing.length?'<br>⚠ Không thấy sheet: '+test.missing.join(', '):''), test.missing.length>0);
 }
 document.getElementById('file').addEventListener('change',e=>{handleFiles(e.target.files);e.target.value='';});
-document.getElementById('reset').addEventListener('click',()=>{
-  if(!confirm('Quay về dữ liệu gốc đi kèm file HTML? (Dữ liệu đã tải lên sẽ bị xoá khỏi trình duyệt)'))return;
-  try{localStorage.removeItem(STORE);}catch(_){} loadData(DEFAULT); render(); toast('↺ Đã quay về dữ liệu gốc');});
 const dropEl=document.getElementById('drop'); let dragN=0;
-window.addEventListener('dragenter',e=>{if([...(e.dataTransfer.types||[])].includes('Files')){dragN++;dropEl.classList.add('on');}});
+window.addEventListener('dragenter',e=>{if(isAdmin&&[...(e.dataTransfer.types||[])].includes('Files')){dragN++;dropEl.classList.add('on');}});
 window.addEventListener('dragleave',()=>{if(--dragN<=0){dragN=0;dropEl.classList.remove('on');}});
 window.addEventListener('dragover',e=>e.preventDefault());
-window.addEventListener('drop',e=>{e.preventDefault();dragN=0;dropEl.classList.remove('on');handleFiles(e.dataTransfer.files);});
-// ---------- init
-(function(){let pkg=null;try{const s=localStorage.getItem(STORE);if(s)pkg=JSON.parse(s);}catch(_){}
-  try{loadData(pkg||DEFAULT);}catch(e){console.error(e);loadData(DEFAULT);}})();
+window.addEventListener('drop',e=>{e.preventDefault();dragN=0;dropEl.classList.remove('on');if(isAdmin)handleFiles(e.dataTransfer.files);});
+
+// ---- Firebase callbacks (called from module script below)
+function applyRemote(data){
+  cloudTime=data.updatedAt&&data.updatedAt.toDate?data.updatedAt.toDate():cloudTime;
+  lastCloudJSON=data.data;
+  const same=PKG&&JSON.stringify(PKG.sheets)===data.data;
+  if(!same){
+    const y=window.scrollY;
+    loadData({sheets:JSON.parse(data.data),meta:data.meta||{}}); render(); window.scrollTo(0,y);
+    if(!firstData) toast('🔄 Dữ liệu vừa được cập nhật');
+  } else { META=data.meta||META; updHeader(); }
+  cacheLocal();
+}
+window.onFbData=(data,md)=>{
+  fbOK=true;
+  if(!data){ // chưa có dữ liệu trên máy chủ
+    setStatus(isAdmin?'☁️ Đang tạo dữ liệu…':'☁️ Chưa có dữ liệu trên máy chủ','warn');
+    if(isAdmin&&!saving){dirty=true;saveNow();}
+    firstData=false; return;
+  }
+  if(md&&md.hasPendingWrites) return;
+  if(dirty||saving||(document.activeElement&&document.activeElement.isContentEditable)){ pendingRemote=data; }
+  else applyRemote(data);
+  if(!dirty&&!saving) setStatus(isAdmin?'✏️ Chế độ sửa · đã đồng bộ':'☁️ Trực tuyến','ok');
+  firstData=false;
+};
+window.onFbError=e=>{ console.error(e); if(!fbOK) setStatus('⚠️ Ngoại tuyến – đang xem bản lưu trên máy','err'); else toast('⚠️ Lỗi kết nối: '+esc(fbErr(e)),true); };
+window.onFbConfig=cfg=>{
+  const h=(cfg&&cfg.pwHash)||DEFAULT_PW_HASH;
+  const changed=h!==PW_HASH; PW_HASH=h;
+  if(changed&&isAdmin){ let saved=null; try{saved=localStorage.getItem(ADMIN_KEY);}catch(_){}
+    if(saved!==h){ setAdmin(false); toast('🔑 Mật khẩu vừa được đổi – hãy nhập lại mật khẩu mới để tiếp tục sửa.',true); } }
+};
+setTimeout(()=>{ if(!fbOK&&!window.FB) setStatus('⚠️ Ngoại tuyến – đang xem bản lưu trên máy','err'); },10000);
+
+// ---- init
+(function(){let pkg=null;try{const s=localStorage.getItem(CACHE);if(s)pkg=JSON.parse(s);}catch(_){}
+  try{loadData(pkg||DEFAULT); if(pkg&&pkg.t) cloudTime=new Date(pkg.t); updHeader();}catch(e){console.error(e);loadData(DEFAULT);}})();
 window.addEventListener('hashchange',()=>{view=location.hash.slice(1)||todayKey;render();});
+try{ if(localStorage.getItem(ADMIN_KEY)===PW_HASH){ isAdmin=true; document.body.classList.add('admin'); } }catch(_){}
 render();
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a4174e3b886e860d',t:'MTc5MDQ3ODUyNA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script type="module">
+const firebaseConfig = {
+  apiKey: "AIzaSyDjUmdMLqkhvkqddwvMVW50nQ53NBp87Ws",
+  authDomain: "dieuhanhhavi.firebaseapp.com",
+  projectId: "dieuhanhhavi",
+  storageBucket: "dieuhanhhavi.firebasestorage.app",
+  messagingSenderId: "1049879377731",
+  appId: "1:1049879377731:web:a29ece9950bb5da61321f6",
+  measurementId: "G-Z8D12DJMJX"
+};
+const V="10.12.2", B=`https://www.gstatic.com/firebasejs/${V}/`;
+try{
+  const [A,F]=await Promise.all([import(B+"firebase-app.js"),import(B+"firebase-firestore.js")]);
+  const app=A.initializeApp(firebaseConfig);
+  const db=F.getFirestore(app);
+  const ref=F.doc(db,"dieuhanh","current"), cfgRef=F.doc(db,"dieuhanh","config");
+  window.FB={
+    save:(json,meta)=>F.setDoc(ref,{data:json,meta:meta||{},updatedAt:F.serverTimestamp()}),
+    backup:(json,meta,note)=>F.addDoc(F.collection(db,"lichsu"),{data:json,meta:meta||{},note:note||"",at:F.serverTimestamp()}),
+    history:async()=>{const s=await F.getDocs(F.query(F.collection(db,"lichsu"),F.orderBy("at","desc"),F.limit(30)));return s.docs.map(d=>({id:d.id,...d.data()}));},
+    setPw:h=>F.setDoc(cfgRef,{pwHash:h,updatedAt:F.serverTimestamp()},{merge:true})
+  };
+  // Lắng nghe thay đổi theo thời gian thực
+  F.onSnapshot(cfgRef,s=>window.onFbConfig(s.exists()?s.data():null),e=>console.warn(e));
+  F.onSnapshot(ref,s=>window.onFbData(s.exists()?s.data():null,s.metadata),e=>window.onFbError(e));
+}catch(e){ window.onFbError(e); }
+</script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a4177625ade69d7d',t:'MTc5MDQ4MDE1OQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>

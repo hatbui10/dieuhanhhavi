@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Điều hành Hà Vi – 22.9.26</title>
+<script>try{if(localStorage.getItem("hv_theme")!=="light")document.documentElement.classList.add("dark")}catch(e){document.documentElement.classList.add("dark")}</script>
+<meta name="theme-color" content="#0a142e">
 <style>
 :root{--bg:#f4f6fb;--card:#fff;--pri:#2952cc;--pri2:#e8eeff;--txt:#1d2433;--mut:#6b7280;--bd:#e3e7ef;--hl:#fff3a3}
 *{box-sizing:border-box}
@@ -220,6 +222,95 @@ tr.addrow2 td{border-bottom:none;padding-top:10px}
 .mbox select,.mbox textarea{width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:9px;font-size:15px;margin-bottom:10px;font-family:inherit}
 .mbox textarea{min-height:80px;resize:vertical}
 kbd{background:#fff;border:1px solid #d6c27a;border-radius:4px;padding:0 5px;font-size:12px}
+/* ===== NỀN TỐI (mặc định; khi in vẫn dùng nền sáng) ===== */
+@media screen{
+html.dark{color-scheme:dark;--bg:#0e131d;--card:#1f2a3e;--pri:#7ea6ff;--pri2:#23335a;--txt:#e4e9f2;--mut:#98a4b8;--bd:#34445f;--hl:#7a6a12}
+html.dark header{background:linear-gradient(120deg,#0a142e,#17295e);box-shadow:0 2px 12px rgba(0,0,0,.5)}
+html.dark .days button.active{background:#7ea6ff;color:#0b1220;border-color:#7ea6ff}
+html.dark .days button.alt.active{background:#7ea6ff}
+html.dark #q{background:#1e283a;color:var(--txt)}
+html.dark .dayhead h2{color:#a9c1ff}
+html.dark .stat,html.dark .card,html.dark section,html.dark .menu,html.dark .mbox{background:var(--card)}
+html.dark .card,html.dark section{box-shadow:0 1px 0 rgba(255,255,255,.03),0 2px 8px rgba(0,0,0,.35);border:1px solid #2c3a53}
+html.dark .card.warn{background:#2e2811;border-color:#5e4f1b}
+html.dark .card.warn>h3{border-color:#5e4f1b;color:#f3d57a}
+html.dark .time{background:#22305a;color:#bcd0ff}
+html.dark .role{background:#36234f;color:#e2bdff}
+html.dark .sess{background:#5a4512;color:#fde68a}
+html.dark .chip{background:#2e3b54}
+html.dark .chip.free,html.dark .free{background:#123722;color:#6ee7a0}
+html.dark .chip.ca2{background:#0e324c;color:#7dd3fc}
+html.dark .cls,html.dark .item,html.dark .food{background:#27344b;border-color:#3a4b68}
+html.dark .cls .cn b{color:#a9c1ff}
+html.dark .cls .b{background:#3553b8}
+html.dark .cls .b.b2{background:#0f766e}
+html.dark .cls .grp{background:#35291a}
+html.dark .cls .nt{color:#fca5a5}
+html.dark .lop{background:#3553b8}
+html.dark .tag.go{background:#123722;color:#86efac}
+html.dark .tag.grab{background:#123722;color:#4ade80}
+html.dark .tag.warn{background:#461b1b;color:#fca5a5}
+html.dark .wk{background:#35291a}
+html.dark .wk small{color:#fdba74}
+html.dark .wk.cur{background:#43290f;outline-color:#f97316}
+html.dark a.tel{color:#34d399}
+html.dark .cap{background:#243048}
+html.dark .cap b{color:#a9c1ff}
+html.dark .raw thead th{background:#22305a;color:#c9d7ff}
+html.dark .raw tbody tr:nth-child(even) td{background:#243048}
+html.dark .raw td.first{background:#26324a!important;color:#a9c1ff}
+html.dark .raw tbody td:first-child{background:var(--card)}
+html.dark .raw tr.gap td{background:var(--bg)!important}
+html.dark .raw td.note{background:#2e2811!important;color:#f3d57a}
+html.dark mark{color:#fff}
+html.dark .subtabs button{background:var(--card);color:var(--txt)}
+html.dark .subtabs button.active{background:var(--pri);color:#0b1220;border-color:var(--pri)}
+html.dark .btn.lock{background:#e4e9f2;color:#17295e;border-color:#e4e9f2}
+html.dark .adminbar{background:#0e2b22;border-color:#1f6f55;color:#a7f3d0}
+html.dark .editlink{background:#0e2b22;color:#6ee7b7;border-color:#1f6f55}
+html.dark .editlink:hover{background:#134034}
+html.dark #modal{background:rgba(0,0,0,.65)}
+html.dark .mbox h3{color:#a9c1ff}
+html.dark .mbox input,html.dark .mbox select,html.dark .mbox textarea{background:#0e131d;color:var(--txt);border-color:#34435c}
+html.dark .mbtn.p{color:#0b1220}html.dark .mbtn.p:hover{background:#a9c1ff}
+html.dark .mbtn.g{background:#243044;color:var(--txt)}
+html.dark .merr{color:#fca5a5}
+html.dark table.raw.edit td[contenteditable]{background:var(--card)}
+html.dark table.raw.edit td[contenteditable]:hover{background:#15302a}
+html.dark table.raw.edit td[contenteditable]:focus{background:#2a2410}
+html.dark table.raw.edit tr.h td[contenteditable]{background:#22305a;color:#c9d7ff}
+html.dark table.raw.edit td.gut{background:#19223a;color:#64748b}
+html.dark table.raw.edit td.gut button{background:#2a3850;color:var(--txt)}
+html.dark table.raw.edit td.gut button.del:hover{background:#5b1f1f}
+html.dark table.raw.edit td.gut button.add:hover{background:#14532d}
+html.dark table.raw.edit td.saved-flash{animation:fld 1s}
+@keyframes fld{from{background:#14532d}to{background:#1f2a3e}}
+html.dark .addrow{background:var(--card);color:var(--mut);border-color:#475569}
+html.dark .edithint{background:#2e2811;border-color:#5e4f1b;color:#f3d57a}
+html.dark kbd{background:#1e283a;border-color:#5e4f1b;color:var(--txt)}
+html.dark select.ie{background:#2a3852;border-color:#50617e}
+html.dark select.ie option{background:#2a3852;color:#e4e9f2}
+html.dark select.ie.time{background:#22305a;color:#bcd0ff;border-color:#3b4f86}
+html.dark select.ie.role{background:#36234f;color:#e2bdff;border-color:#583a82}
+html.dark select.ie.day,html.dark select.ie.lop{background:#3553b8;color:#fff}
+html.dark select.ie.go{background:#123722;color:#86efac;border-color:#1f6f45}
+html.dark select.ie.food{background:#2a3852}
+html.dark .ie-t{border-bottom-color:#10b981}
+html.dark .ie-t:hover{background:#15302a}
+html.dark .ie-t:focus{background:#2a2410}
+html.dark .ie-t:empty:before{color:#64748b}
+html.dark .ie-t.cname,html.dark .ie-t.lopt{color:#a9c1ff}
+html.dark .ie-b{background:#2a3852;border-color:#46587a;color:var(--txt)}
+html.dark .ie-b:hover{background:#34445f}
+html.dark .ie-b.del:hover{background:#461b1b;border-color:#7f2d2d}
+html.dark .ie-b.add{background:#0e2b22;color:#6ee7b7;border-color:#1f6f55}
+html.dark .ie-b.add:hover{background:#134034}
+html.dark .ie-b.x{background:none;border:none;color:#4ade80}
+html.dark ::-webkit-scrollbar{width:10px;height:10px}
+html.dark ::-webkit-scrollbar-track{background:#0e131d}
+html.dark ::-webkit-scrollbar-thumb{background:#2f3d56;border-radius:6px}
+}
+
 </style>
 <header>
   <div class="top">
@@ -239,6 +330,7 @@ kbd{background:#fff;border:1px solid #d6c27a;border-radius:4px;padding:0 5px;fon
           <button data-act="logout">🚪 Đăng xuất (thoát chế độ sửa)</button>
         </div>
       </div>
+      <button class="btn" id="btnTheme" title="Đổi nền sáng / tối">☀️</button>
       <button class="btn" onclick="window.print()">🖨 In</button>
     </div>
   </div>
@@ -1071,6 +1163,10 @@ function doLogin(){
   if(fbOK&&lastCloudJSON===null&&!saving){dirty=true;saveNow();}
 }
 document.getElementById('btnLogin').onclick=()=>loginModal();
+const btnTheme=document.getElementById('btnTheme');
+function syncThemeBtn(){const d=document.documentElement.classList.contains('dark');btnTheme.textContent=d?'☀️ Nền sáng':'🌙 Nền tối';}
+btnTheme.onclick=()=>{const d=document.documentElement.classList.toggle('dark');try{localStorage.setItem('hv_theme',d?'dark':'light');}catch(_){}syncThemeBtn();};
+syncThemeBtn();
 const menu=document.getElementById('menu');
 document.getElementById('btnMenu').onclick=e=>{e.stopPropagation();menu.classList.toggle('on');};
 document.addEventListener('click',e=>{if(!e.target.closest('.menuwrap'))menu.classList.remove('on');});
@@ -1247,5 +1343,5 @@ try{
   F.onSnapshot(ref,s=>window.onFbData(s.exists()?s.data():null,s.metadata),e=>window.onFbError(e));
 }catch(e){ window.onFbError(e); }
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a41790faef87dc87',t:'MTc5MDQ4MTI1OA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a417a3769963855c',t:'MTc5MDQ4MjAxNQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>

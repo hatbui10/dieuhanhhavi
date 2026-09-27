@@ -2,243 +2,1734 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lớp High - L8/Thu Hà</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Điều hành Hà Vi – 22.9.26</title>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-body { background-color: #050508; color: #e0e0e6; padding: 30px 3px 20px 3px; }
-h2, h3 { text-align: center; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
-h2 { color: #00f0ff; text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); font-size: 1.4rem; }
-h3 { color: #ff007f; text-shadow: 0 0 10px rgba(255, 0, 127, 0.5); font-size: 1.1rem; }
-.class-stats { text-align: center; color: #ffd700; font-size: 0.9rem; margin-bottom: 15px; font-weight: bold; }
-.class-panel { background: #0a0a14; border: 1px solid #00f0ff; border-radius: 6px; padding: 15px 8px; box-shadow: 0 0 15px rgba(0, 240, 255, 0.15); }
-.add-student-box { display: flex; flex-direction: column; gap: 10px; background: #0d0d1a; border: 1px solid #ffd700; border-radius: 4px; padding: 12px 10px; margin-bottom: 15px; }
-.add-student-box input { width: 100%; background: #050508; border: 1px solid #333; color: #fff; padding: 12px 10px; font-size: 0.9rem; border-radius: 4px; outline: none; }
-.btn-add { background: #ffd700; color: #000; border: none; padding: 12px; font-weight: bold; font-size: 0.9rem; border-radius: 4px; cursor: pointer; text-transform: uppercase; }
-.absent-section { background: rgba(255, 0, 127, 0.05); border: 1px dashed #ff007f; border-radius: 4px; padding: 10px; margin-bottom: 20px; }
-.absent-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-.absent-title { color: #ff007f; font-weight: bold; font-size: 0.9rem; }
-.copy-btn { background: #ff007f; color: #fff; border: none; padding: 6px 12px; font-size: 0.8rem; font-weight: bold; border-radius: 3px; cursor: pointer; box-shadow: 0 0 8px #ff007f; }
-.absent-list { list-style: none; font-size: 0.9rem; color: #ff55a5; line-height: 1.4; }
-.absent-list li { padding: 3px 0; border-bottom: 1px solid rgba(255, 0, 127, 0.1); }
-.student-list { display: flex; flex-direction: column; gap: 10px; }
-.student-card { background: #121224; border: 1px solid #333; border-left: 4px solid #00f0ff; border-radius: 4px; padding: 12px 10px; display: flex; flex-direction: column; gap: 10px; }
-.student-card.status-absent { border-left-color: #ff007f; background: #1a0813; }
-.student-card.status-present { border-left-color: #00ff66; background: #081a10; }
-.student-info-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; border-bottom: 1px solid #222; padding-bottom: 6px; }
-.student-meta { display: flex; flex-direction: column; gap: 2px; flex: 1; }
-.student-name { font-weight: bold; font-size: 0.95rem; color: #fff; }
-.student-phone { font-size: 0.8rem; color: #888; }
-.student-actions-right { display: flex; gap: 5px; }
-.btn-call { background: #ffd700; color: #000; padding: 8px 12px; font-size: 0.9rem; border: none; border-radius: 4px; cursor: pointer; box-shadow: 0 0 5px #ffd700; }
-.btn-delete { background: #4a0000; color: #ff3333; border: 1px solid #ff3333; padding: 8px 10px; font-size: 0.9rem; border-radius: 4px; cursor: pointer; }
-.student-controls-row { display: flex; gap: 6px; align-items: center; }
-.btn-action { flex: 1; padding: 10px 3px; font-size: 0.8rem; font-weight: bold; border: none; border-radius: 3px; cursor: pointer; text-align: center; color: #fff; background: #333; }
-.btn-absent { background: #4a0025; color: #ff007f; border: 1px solid #ff007f; }
-.btn-absent.active { background: #ff007f; color: #fff; box-shadow: 0 0 10px #ff007f; }
-.btn-present { background: #003311; color: #00ff66; border: 1px solid #00ff66; }
-.btn-present.active { background: #00ff66; color: #000; box-shadow: 0 0 10px #00ff66; }
-.note-select { flex: 1.5; background: #1a1a3a; color: #00f0ff; border: 1px solid #00f0ff; padding: 9px 3px; font-size: 0.8rem; border-radius: 3px; outline: none; }
+:root{--bg:#f4f6fb;--card:#fff;--pri:#2952cc;--pri2:#e8eeff;--txt:#1d2433;--mut:#6b7280;--bd:#e3e7ef;--hl:#fff3a3}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--txt);font-size:14px}
+header{background:linear-gradient(120deg,#1e3a8a,#2952cc);color:#fff;padding:14px 20px 0;position:sticky;top:0;z-index:20;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+.top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+h1{margin:0;font-size:19px;font-weight:600}
+h1 small{font-weight:400;opacity:.8;font-size:13px;margin-left:6px}
+.tools{display:flex;gap:8px;align-items:center}
+#q{padding:8px 12px;border-radius:8px;border:none;width:240px;font-size:14px;outline:none}
+.btn{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);padding:7px 12px;border-radius:8px;cursor:pointer;font-size:13px}
+.btn:hover{background:rgba(255,255,255,.28)}
+/* day buttons */
+.days{display:flex;gap:8px;margin-top:4px;padding-top:9px;overflow-x:auto;padding-bottom:12px;align-items:stretch}
+.days button{flex:1 0 auto;min-width:86px;background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:12px;padding:8px 10px;cursor:pointer;text-align:center;transition:.15s;position:relative}
+.days button b{display:block;font-size:16px}
+.days button small{opacity:.8;font-size:11.5px}
+.days button:hover{background:rgba(255,255,255,.25)}
+.days button.active{background:#fff;color:var(--pri);border-color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+.days button .today{position:absolute;top:-7px;right:6px;background:#ffcc00;color:#000;font-size:10px;font-weight:700;border-radius:8px;padding:1px 6px}
+.days .sep{width:1px;background:rgba(255,255,255,.3);flex:0 0 1px;margin:0 4px}
+.days button.alt{min-width:110px;background:rgba(0,0,0,.15)}
+.days button.alt.active{background:#fff}
+main{padding:18px 20px 40px;max-width:1500px;margin:0 auto}
+/* day view */
+.dayhead{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-bottom:14px}
+.dayhead h2{margin:0;font-size:24px;color:#1e3a8a}
+.stat{background:#fff;border-radius:10px;padding:6px 12px;box-shadow:0 1px 3px rgba(0,0,0,.06);font-size:13px;color:var(--mut)}
+.stat b{color:var(--txt);font-size:15px;margin-right:3px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(440px,1fr));gap:16px}
+.card{background:#fff;border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,.07);overflow:hidden}
+.card.full{grid-column:1/-1}
+.card>h3{margin:0;padding:12px 16px;font-size:15px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px}
+.card>h3 .n{margin-left:auto;background:var(--pri2);color:var(--pri);font-size:12px;border-radius:10px;padding:1px 9px}
+.card .body{padding:12px 16px}
+.card.warn{background:#fffbea;border:1px solid #f5d565}
+.card.warn>h3{border-color:#f5d565;color:#8a6100}
+.card.warn ul{margin:0;padding-left:20px;line-height:1.8}
+.none{color:var(--mut);font-style:italic;padding:4px 0}
+.list{width:100%;border-collapse:collapse}
+.list td{padding:8px 6px;border-bottom:1px dashed var(--bd);vertical-align:top}
+.list tr:last-child td{border-bottom:none}
+.list .who{font-weight:600;white-space:nowrap}
+.list .who small{display:block;font-weight:400;color:var(--mut);font-size:12px}
+.time{display:inline-block;background:#eef2ff;color:#1e3a8a;border-radius:6px;padding:1px 8px;font-weight:600;font-size:12.5px;white-space:nowrap}
+.role{display:inline-block;background:#f3e8ff;color:#7e22ce;border-radius:6px;padding:1px 8px;font-size:12.5px;margin:1px 2px}
+.sess{display:inline-block;background:#fde68a;color:#78350f;border-radius:6px;padding:1px 8px;font-size:12px;font-weight:600;margin-right:6px}
+.chip{display:inline-block;border-radius:14px;padding:3px 10px;margin:3px 4px 3px 0;font-size:13px;background:#f1f5f9}
+.chip.free{background:#dcfce7;color:#15803d;font-weight:600}
+.chip.ca2{background:#e0f2fe;color:#0369a1;font-weight:600}
+.sub{font-size:12.5px;color:var(--mut);margin:10px 0 4px;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.classes{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.cls{border:1px solid var(--bd);border-radius:12px;padding:10px 12px;background:#fcfdff}
+.cls .cn{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.cls .cn b{font-size:16px;color:#1e3a8a}
+.cls .b{font-size:11px;background:#1e3a8a;color:#fff;border-radius:6px;padding:1px 7px}
+.cls .b.b2{background:#0f766e}
+.cls .b.ex{background:#b45309}
+.cls ul{margin:0;padding-left:18px;line-height:1.7}
+.cls .grp{margin-top:6px;padding:6px 8px;background:#fff7ed;border-radius:8px;font-size:13px}
+.cls .nt{margin-top:6px;font-size:12.5px;color:#b91c1c}
+.item{border:1px solid var(--bd);border-radius:12px;padding:10px 12px;margin-bottom:10px}
+.item:last-child{margin-bottom:0}
+.item .t{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:4px}
+.item .t b{font-size:15px}
+.lop{display:inline-block;background:#1e3a8a;color:#fff;border-radius:6px;padding:0 7px;font-size:12px;font-weight:600}
+.tag{display:inline-block;border-radius:6px;padding:0 7px;font-size:12px;font-weight:600}
+.tag.go{background:#dcfce7;color:#166534}.tag.grab{background:#dcfce7;color:#00a651}.tag.warn{background:#fee2e2;color:#b91c1c}
+.kv{display:grid;grid-template-columns:90px 1fr;gap:3px 8px;font-size:13.5px;line-height:1.5}
+.kv span:nth-child(odd){color:var(--mut)}
+.food{border:1px solid var(--bd);border-radius:12px;padding:10px 12px;margin-bottom:10px}
+.weeks{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px}
+.wk{background:#fff7ed;border-radius:8px;padding:6px 8px;font-size:13px}
+.wk small{display:block;color:#9a3412;font-weight:600;font-size:11px}
+.wk.cur{outline:2px solid #f97316;background:#ffedd5}
+.shop{font-size:12.5px;color:var(--mut);margin-top:8px;line-height:1.6}
+a.tel{color:#0a7a55;text-decoration:none;white-space:nowrap;font-weight:500}
+a.tel:hover{text-decoration:underline}
+/* table view */
+section{background:var(--card);border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:24px;overflow:hidden}
+section h2{margin:0;padding:14px 18px;font-size:16px;border-bottom:1px solid var(--bd);color:var(--pri);display:flex;justify-content:space-between}
+section h2 span{color:var(--mut);font-weight:400;font-size:12px}
+.wrap{overflow:auto}
+table.raw{border-collapse:separate;border-spacing:0;width:100%;min-width:600px}
+.raw th,.raw td{border-right:1px solid var(--bd);border-bottom:1px solid var(--bd);padding:7px 10px;vertical-align:top;text-align:left;white-space:pre-line;line-height:1.4}
+.raw thead th{background:#eef2ff;color:#1e3a8a;font-weight:600;text-align:center}
+.raw tbody tr:nth-child(even) td{background:#fafbfe}
+.raw td.first{font-weight:600;background:#f7f9ff!important;color:#1e3a8a}
+.raw tr.gap td{padding:3px;background:#f4f6fb!important}
+.raw td.note{background:#fffbea!important;color:#7a5b00;font-style:italic}
+.day{display:inline-block;background:var(--pri2);color:var(--pri);border-radius:6px;padding:1px 8px;font-weight:600;font-size:12.5px}
+.free{display:inline-block;background:#dcfce7;color:#15803d;border-radius:6px;padding:1px 8px;font-weight:600}
+mark{background:var(--hl);padding:0 1px;border-radius:2px}
+.subtabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.subtabs button{border:1px solid var(--bd);background:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px}
+.subtabs button.active{background:var(--pri);color:#fff;border-color:var(--pri)}
+.hidden{display:none!important}
+@media print{header{position:static}.days,.tools{display:none}.card{break-inside:avoid;box-shadow:none;border:1px solid #ccc}}
+@media(max-width:640px){#q{width:150px}main{padding:12px}.grid{grid-template-columns:1fr}.weeks{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
-<h2>Lớp: High - L8/Thu Hà</h2>
-<div class="class-stats" id="classStats">Sĩ số: 0 | Có mặt: 0 | Vắng: 0</div>
-<div class="class-panel">
-<h3>Danh Sách: High - L8/Thu Hà</h3>
-<br>
-<div class="add-student-box">
-<input type="text" id="newStudentName" placeholder="Dòng 1: Nhập họ và tên...">
-<input type="tel" id="newStudentPhone" placeholder="Dòng 2: Nhập số điện thoại...">
-<button class="btn-add" onclick="addNewStudent()">+ Thêm vào danh sách</button>
-</div>
-<div class="absent-section">
-<div class="absent-header">
-<span class="absent-title">DANH SÁCH VẮNG </span>
-<button class="copy-btn" onclick="copyAbsentList()">Copy</button>
-</div>
-<ul class="absent-list" id="absentList"><li><em>Chưa có học sinh vắng</em></li></ul>
-</div>
-<div class="student-list" id="studentList"></div>
-</div>
+<header>
+  <div class="top">
+    <h1>📋 ĐIỀU HÀNH HÀ VI <small>Cập nhật 22.9.26</small></h1>
+    <div class="tools">
+      <input id="q" type="search" class="hidden" placeholder="🔍 Tìm trong bảng gốc...">
+      <button class="btn" onclick="window.print()">🖨 In</button>
+    </div>
+  </div>
+  <div class="days" id="days"></div>
+</header>
+<main id="main"></main>
 <script>
-const defaultStudents = [
+const D = {
+ "persons": [
+  {
+   "name": "Long bé",
+   "year": "2008",
+   "phone": ""
+  },
+  {
+   "name": "Mạnh Hùng",
+   "year": "1994",
+   "phone": ""
+  },
+  {
+   "name": "Quang Tùng",
+   "year": "2006",
+   "phone": ""
+  },
+  {
+   "name": "Khôi Nguyên",
+   "year": "",
+   "phone": ""
+  },
+  {
+   "name": "Hoàng Long (lớn)",
+   "year": "2002",
+   "phone": ""
+  },
+  {
+   "name": "Xuân Bắc Ngõ 107",
+   "year": "2006",
+   "phone": "091.629.5600"
+  },
+  {
+   "name": "Ninh Trang",
+   "year": "2007",
+   "phone": "033.813.1698"
+  },
+  {
+   "name": "Vũ Quang Vinh 1A",
+   "year": "2007",
+   "phone": ""
+  }
+ ],
+ "lich": {
+  "T2": [
+   {
+    "session": "",
+    "notes": [
+     "Đèo Uyên Nhi xe BUS-HIGH",
+     "Xếp bàn IE nhà 56",
+     "Tùng đón Lan Anh (SKY)",
+     "Kiểm tra 158"
+    ],
+    "work": [
+     {
+      "name": "Long bé",
+      "time": "17h00-20h30",
+      "role": "QLC"
+     },
+     {
+      "name": "Mạnh Hùng",
+      "time": "17h00-20h30",
+      "role": "QLC"
+     },
+     {
+      "name": "Quang Tùng",
+      "time": "17h00-21h45",
+      "role": "QLC"
+     },
+     {
+      "name": "Xuân Bắc Ngõ 107",
+      "time": "17h00-20h30",
+      "role": ""
+     }
+    ],
+    "free": [
+     "Khôi Nguyên"
+    ],
+    "ca2": [
+     "WIN"
+    ]
+   }
+  ],
+  "T3": [
+   {
+    "session": "",
+    "notes": [
+     "Tùng đón Bảo Phú",
+     "Mỹ An (Smile)"
+    ],
+    "work": [
+     {
+      "name": "Mạnh Hùng",
+      "time": "17h00-20h30",
+      "role": "QLC"
+     },
+     {
+      "name": "Quang Tùng",
+      "time": "17h00-21h00",
+      "role": "QLC"
+     },
+     {
+      "name": "Ninh Trang",
+      "time": "17h00-20h30",
+      "role": "QLC"
+     },
+     {
+      "name": "Vũ Quang Vinh 1A",
+      "time": "17h00-20h30",
+      "role": ""
+     }
+    ],
+    "free": [],
+    "ca2": []
+   }
+  ],
+  "T4": [
+   {
+    "session": "",
+    "notes": [
+     "Tùng đón Lan Anh (SKY)"
+    ],
+    "work": [
+     {
+      "name": "Long bé",
+      "time": "17h00-21h45",
+      "role": "QLC"
+     },
+     {
+      "name": "Mạnh Hùng",
+      "time": "17h00-20h30",
+      "role": "QLC"
+     },
+     {
+      "name": "Quang Tùng",
+      "time": "17h00-21h00",
+      "role": "QLC"
+     },
+     {
+      "name": "Khôi Nguyên",
+      "time": "17h00-20h30",
+      "role": ""
+     }
+    ],
+    "free": [],
+    "ca2": [
+     "WONDER",
+     "BLUE"
+    ]
+   }
+  ],
+  "T5": [
+   {
+    "session": "",
+    "notes": [
+     "Tùng đón Bảo Phú",
+     "Mỹ An (Smile)"
+    ],
+    "work": [
+     {
+      "name": "Long bé",
+      "time": "17h00-20h30",
+      "role": "QLC"
+     },
+     {
+      "name": "Mạnh Hùng",
+      "time": "17h00-20h30",
+      "role": "QLC"
+     },
+     {
+      "name": "Quang Tùng",
+      "time": "17h00-21h45",
+      "role": "QLC"
+     },
+     {
+      "name": "Ninh Trang",
+      "time": "17h00-20h30",
+      "role": "QLC"
+     }
+    ],
+    "free": [],
+    "ca2": [
+     "CAN",
+     "OCEAN"
+    ]
+   }
+  ],
+  "T6": [
+   {
+    "session": "",
+    "notes": [
+     "Xếp bàn IE nhà 56",
+     "Chú ý nhà 1/158: Có lớp DELTA kiểm tra cửa"
+    ],
+    "work": [
+     {
+      "name": "Mạnh Hùng",
+      "time": "17h00-20h30",
+      "role": "QLC"
+     },
+     {
+      "name": "Quang Tùng",
+      "time": "17h00-21h00",
+      "role": "KIND · APOLLO"
+     },
+     {
+      "name": "Khôi Nguyên",
+      "time": "17h00-20h30",
+      "role": ""
+     },
+     {
+      "name": "Vũ Quang Vinh 1A",
+      "time": "17h00-21h45",
+      "role": "KIND · APOLLO"
+     }
+    ],
+    "free": [],
+    "ca2": [
+     "WIN",
+     "ATHENA",
+     "TRY"
+    ]
+   }
+  ],
+  "T7": [
+   {
+    "session": "",
+    "notes": [],
+    "work": [
+     {
+      "name": "Long bé",
+      "time": "17h00-20h30",
+      "role": "QLC"
+     },
+     {
+      "name": "Quang Tùng",
+      "time": "17h00-21h45",
+      "role": "QLC"
+     },
+     {
+      "name": "Hoàng Long (lớn)",
+      "time": "17h00-20h00",
+      "role": "QL 158"
+     },
+     {
+      "name": "Xuân Bắc Ngõ 107",
+      "time": "17h00-20h30",
+      "role": "Apollo · Ozone"
+     },
+     {
+      "name": "Ninh Trang",
+      "time": "17h00-20h30",
+      "role": "Apollo · Ozone"
+     }
+    ],
+    "free": [
+     "Mạnh Hùng"
+    ],
+    "ca2": [
+     "CAN"
+    ]
+   }
+  ],
+  "CN": [
+   {
+    "session": "Sáng",
+    "notes": [],
+    "work": [
+     {
+      "name": "Quang Tùng",
+      "time": "7h30-11h45",
+      "role": "QLC"
+     },
+     {
+      "name": "Khôi Nguyên",
+      "time": "7h30-11h45",
+      "role": "QLC"
+     }
+    ],
+    "free": [
+     "Xuân Bắc Ngõ 107",
+     "Vũ Quang Vinh 1A"
+    ],
+    "ca2": []
+   },
+   {
+    "session": "Chiều",
+    "notes": [],
+    "work": [
+     {
+      "name": "Long bé",
+      "time": "15h00-19h00",
+      "role": "QLC"
+     },
+     {
+      "name": "Quang Tùng",
+      "time": "15h00-19h00",
+      "role": "QLC"
+     },
+     {
+      "name": "Hoàng Long (lớn)",
+      "time": "15h00-19h00",
+      "role": "QL 158"
+     },
+     {
+      "name": "Vũ Quang Vinh 1A",
+      "time": "15h00-19h00",
+      "role": "SVIP"
+     }
+    ],
+    "free": [],
+    "ca2": []
+   }
+  ]
+ },
+ "general_notes": [
+  "Ghi chú:Hoàng Công thiết kế từ xa 081.997.9700; Hòng máy tính laptop 24h: 096.300.9992 (176 Lê Thanh Nghị). \nHàng in 196 Hồng Mai 091.216.1604. A Hùng hỗ trợ 034.396.9358"
+ ],
+ "classes": [
+  {
+   "name": "CLC",
+   "note": [],
+   "b1": {
+    "day": [
+     "T3",
+     ""
+    ],
+    "tg": [
+     {
+      "name": "Phan Gia Phú 6.5",
+      "time": "20h00-21h30"
+     },
+     {
+      "name": "Lê Anh Thư",
+      "time": ""
+     },
+     {
+      "name": "Nguyễn Hồng Ngọc 7.0",
+      "time": ""
+     }
+    ]
+   },
+   "b2": {
+    "day": [
+     "T6",
+     ""
+    ],
+    "tg": [
+     {
+      "name": "Phan Gia Phú 6.5",
+      "time": "18h15-20h00"
+     },
+     {
+      "name": "Lê Anh Thư",
+      "time": ""
+     },
+     {
+      "name": "Vương Thùy Trang 6.5",
+      "time": ""
+     }
+    ]
+   },
+   "subs": [
     {
-        "id": 1,
-        "name": "Nguyễn Đỗ Hải Long",
-        "phone": "0961287398",
-        "status": "present",
-        "note": ""
-    },
-    {
-        "id": 2,
-        "name": "Nguyễn Hương Trà",
-        "phone": "0973549189",
-        "status": "present",
-        "note": ""
-    },
-    {
-        "id": 3,
-        "name": "Nguyễn Thái Dương",
-        "phone": "0912425469",
-        "status": "present",
-        "note": ""
-    },
-    {
-        "id": 4,
-        "name": "Nguyễn Huy Hoàng",
-        "phone": "0912787519",
-        "status": "present",
-        "note": ""
-    },
-    {
-        "id": 5,
-        "name": "Nguyễn Phương Linh",
-        "phone": "0845154444",
-        "status": "present",
-        "note": ""
-    },
-    {
-        "id": 6,
-        "name": "Nguyễn Phương Vy",
-        "phone": "0906010537",
-        "status": "present",
-        "note": ""
-    },
-    {
-        "id": 7,
-        "name": "Dương Thanh Lâm",
-        "phone": "0919791388",
-        "status": "present",
-        "note": ""
-    },
-    {
-        "id": 8,
-        "name": "Trần Thu Uyên",
-        "phone": "0773453668",
-        "status": "present",
-        "note": ""
-    },
-    {
-        "id": 9,
-        "name": "Nguyễn Mạnh Cường",
-        "phone": "0868462972",
-        "status": "present",
-        "note": ""
-    },
-    {
-        "id": 10,
-        "name": "Nguyễn Trường Sơn",
-        "phone": "0964315276",
-        "status": "present",
-        "note": ""
-    },
-    {
-        "id": 11,
-        "name": "Tô Quang Anh",
-        "phone": "0377488252",
-        "status": "present",
-        "note": ""
-    },
-    {
-        "id": 12,
-        "name": "Phạm Anh Thư",
-        "phone": "0367214181",
-        "status": "present",
-        "note": ""
-    },
-    {
-        "id": 13,
-        "name": "Đỗ Minh Quang",
-        "phone": "0773006886",
-        "status": "present",
-        "note": ""
-    },
-    {
-        "id": 14,
-        "name": "Nghiêm Hải Lâm",
-        "phone": "0988819366",
-        "status": "present",
-        "note": ""
-    },
-    {
-        "id": 15,
-        "name": "Lê Khánh Ngọc (Sóc)",
-        "phone": "0972720485",
-        "status": "present",
-        "note": ""
-    },
-    {
-        "id": 16,
-        "name": "Nguyễn Lê Uyên Nhi",
-        "phone": "0915131860",
-        "status": "present",
-        "note": ""
-    },
-    {
-        "id": 17,
-        "name": "Dương An Thy",
-        "phone": "0985332435",
-        "status": "present",
-        "note": ""
-    },
-    {
-        "id": 18,
-        "name": "Nguyễn Đỗ Quỳnh Anh",
-        "phone": "0787286186",
-        "status": "present",
-        "note": ""
-    },
-    {
-        "id": 19,
-        "name": "Nguyễn Đỗ Diệu Anh",
-        "phone": "0787286186",
-        "status": "present",
-        "note": ""
-    },
-    {
-        "id": 20,
-        "name": "Trần Minh Châu Sữa",
-        "phone": "0904747244",
-        "status": "present",
-        "note": ""
-    },
-    {
-        "id": 21,
-        "name": "Chử Hoàng Sơn",
-        "phone": "0974478232",
-        "status": "present",
-        "note": ""
-    },
-    {
-        "id": 22,
-        "name": "Nguyễn Thị Kim Tuyến",
-        "phone": "0983674461",
-        "status": "present",
-        "note": ""
-    },
-    {
-        "id": 23,
-        "name": "Trần Bảo Hân",
-        "phone": "0936302882",
-        "status": "present",
-        "note": ""
+     "name": "Nhóm yếu",
+     "b1": [
+      {
+       "name": "Mai Phương Trà",
+       "time": "20h30-21h30"
+      }
+     ],
+     "b2": [
+      {
+       "name": "Mai Phương Trà",
+       "time": "19h15-20h15"
+      }
+     ]
     }
-];
-let myClass = { name: "High - L8/Thu Hà", students: [] };
-function displayPhone(p) { if(!p || p==='Chưa có') return 'Chưa có'; let c = p.replace(/\s+/g, ''); if(c.length===10) return c.substring(0,4)+' '+c.substring(4,7)+' '+c.substring(7); return p; }
-function loadData() { const saved = localStorage.getItem('classData_High%20-%20L8%2FThu%20H%C3%A0'); if(saved) { myClass.students = JSON.parse(saved); } else { myClass.students = defaultStudents; saveData(); } }
-function saveData() { localStorage.setItem('classData_High%20-%20L8%2FThu%20H%C3%A0', JSON.stringify(myClass.students)); }
-window.onload = function() { loadData(); renderStudentList(); renderAbsentList(); updateStats(); };
-function updateStats() { const total = myClass.students.length; const absent = myClass.students.filter(s => s.status === 'absent').length; const present = total - absent; document.getElementById('classStats').innerText = 'Sĩ số: ' + total + ' | Có mặt: ' + present + ' | Vắng: ' + absent; }
-function addNewStudent() { const nameInput = document.getElementById('newStudentName'); const phoneInput = document.getElementById('newStudentPhone'); const name = nameInput.value.trim(); const phone = phoneInput.value.trim().replace(/\s+/g, '') || 'Chưa có'; if(name === '') { alert('Vui lòng nhập tên!'); return; } const nextId = myClass.students.length > 0 ? Math.max(...myClass.students.map(s => s.id)) + 1 : 1; myClass.students.push({ id: nextId, name: name, phone: phone, status: 'present', note: '' }); saveData(); nameInput.value = ''; phoneInput.value = ''; renderStudentList(); renderAbsentList(); updateStats(); }
-function deleteStudent(id, name) { if(confirm('Bạn có chắc chắn muốn XÓA học sinh ' + name + '?')) { myClass.students = myClass.students.filter(s => s.id !== id); myClass.students.forEach((s, idx) => { s.id = idx + 1; }); saveData(); renderStudentList(); renderAbsentList(); updateStats(); } }
-function renderStudentList() { const container = document.getElementById('studentList'); container.innerHTML = ''; myClass.students.forEach(student => { const card = document.createElement('div'); card.className = 'student-card status-' + student.status; const absentActive = student.status === 'absent' ? 'active' : ''; const presentActive = student.status === 'present' ? 'active' : ''; card.innerHTML = '<div class="student-info-row"><div class="student-meta"><span class="student-name">' + student.id + '. ' + student.name + '</span><span class="student-phone">SĐT: ' + displayPhone(student.phone) + '</span></div><div class="student-actions-right"><button class="btn-call" onclick="callStudent(\'' + student.phone + '\')">📞</button><button class="btn-delete" onclick="deleteStudent(' + student.id + ', \'' + student.name + '\')">🗑️</button></div></div><div class="student-controls-row"><button class="btn-action btn-absent ' + absentActive + '" onclick="updateStatus(' + student.id + ', \'absent\')">Vắng</button><button class="btn-action btn-present ' + presentActive + '" onclick="updateStatus(' + student.id + ', \'present\')">Đi Học</button><select class="note-select" onchange="updateNote(' + student.id + ', this.value)"><option value="" ' + (student.note===''?'selected':'') + '>-- Ghi chú --</option><option value="***" ' + (student.note==='***'?'selected':'') + '>***</option><option value="Đi muộn" ' + (student.note==='Đi muộn' || student.note==='Muộn'?'selected':'') + '>Đi muộn</option><option value="Không nghe máy" ' + (student.note==='Không nghe máy'?'selected':'') + '>Không nghe máy</option><option value="Nghỉ hôm nay" ' + (student.note==='Nghỉ hôm nay'?'selected':'') + '>Nghỉ hôm nay</option><option value="Nghỉ tuần này" ' + (student.note==='Nghỉ tuần này'?'selected':'') + '>Nghỉ tuần này</option><option value="Khi nào đi học sẽ báo lại" ' + (student.note==='Khi nào đi học sẽ báo lại'?'selected':'') + '>Khi nào đi học sẽ báo lại</option><option value="Nghỉ hết tháng 7" ' + (student.note==='Nghỉ hết tháng 7'?'selected':'') + '>Nghỉ hết tháng 7</option><option value="Xin nghỉ hẳn" ' + (student.note==='Xin nghỉ hẳn'?'selected':'') + '>Xin nghỉ hẳn</option><option value="Ốm" ' + (student.note==='Ốm'?'selected':'') + '>Ốm đau</option></select></div>'; container.appendChild(card); }); }
-function updateStatus(id, status) { const student = myClass.students.find(s => s.id === id); student.status = status; saveData(); renderStudentList(); renderAbsentList(); updateStats(); }
-function updateNote(id, value) { const student = myClass.students.find(s => s.id === id); student.note = value; saveData(); renderAbsentList(); }
-function renderAbsentList() { const listContainer = document.getElementById('absentList'); listContainer.innerHTML = ''; const absentStudents = myClass.students.filter(s => s.status === 'absent'); if(absentStudents.length === 0) { listContainer.innerHTML = '<li><em>Chưa có học sinh vắng</em></li>'; return; } absentStudents.forEach(s => { const li = document.createElement('li'); const noteText = s.note ? ' (' + s.note + ')' : ' (Chưa rõ lý do)'; li.innerText = '• ' + s.name + noteText; listContainer.appendChild(li); }); }
-function copyAbsentList() { const total = myClass.students.length; const absentStudents = myClass.students.filter(s => s.status === 'absent'); const absentCount = absentStudents.length; const presentCount = total - absentCount; let text = 'LỚP: ' + myClass.name + '\n'; text += 'Sĩ số: ' + total + ' (Có mặt: ' + presentCount + ' | Vắng: ' + absentCount + ')\n-------------------------\nDanh sách vắng:\n'; if(absentCount === 0) { text += '-Lớp đi học đủ.'; } else { absentStudents.forEach((s, idx) => { const note = s.note ? ' (' + s.note + ')' : ''; text += (idx + 1) + '. ' + s.name + note + '\n'; }); } navigator.clipboard.writeText(text).then(() => { alert('Đã copy báo cáo lớp ' + myClass.name + '!'); }).catch(() => { alert('Lỗi copy.'); }); }
-function callStudent(phone) { if(phone === 'Chưa có') { alert('Chưa có SĐT!'); return; } window.location.href = 'tel:' + phone; }
+   ],
+   "extra": []
+  },
+  {
+   "name": "BOSS",
+   "note": [],
+   "b1": {
+    "day": [
+     "T3",
+     ""
+    ],
+    "tg": [
+     {
+      "name": "Vương Thùy Trang 6.5",
+      "time": ""
+     },
+     {
+      "name": "Phan Gia Phú 6.5",
+      "time": "18h15-20h00"
+     },
+     {
+      "name": "Đỗ Lê Anh Thư FUN",
+      "time": ""
+     },
+     {
+      "name": "Hà Anh Ngọc",
+      "time": "18h15-20h00"
+     }
+    ]
+   },
+   "b2": {
+    "day": [
+     "T5",
+     ""
+    ],
+    "tg": [
+     {
+      "name": "Vương Thùy Trang 6.5",
+      "time": ""
+     },
+     {
+      "name": "Đức Tâm 6.5",
+      "time": ""
+     },
+     {
+      "name": "Đỗ Lê Anh Thư FUN",
+      "time": ""
+     },
+     {
+      "name": "Hà Anh Ngọc",
+      "time": "18h15-20h00"
+     }
+    ]
+   },
+   "subs": [],
+   "extra": []
+  },
+  {
+   "name": "HIGH",
+   "note": [],
+   "b1": {
+    "day": [
+     "T2",
+     ""
+    ],
+    "tg": [
+     {
+      "name": "Lê Anh Thư",
+      "time": "18h00-21h00"
+     },
+     {
+      "name": "Lê Diệp Anh",
+      "time": "18h00-21h00"
+     },
+     {
+      "name": "Phan Gia Phú 6.5",
+      "time": "18h00-21h00"
+     },
+     {
+      "name": "Nguyễn Hà Linh bạn Thanh 6.0",
+      "time": "19h10-21h00"
+     },
+     {
+      "name": "Trịnh Phương Thanh",
+      "time": "19h10-21h00"
+     }
+    ]
+   },
+   "b2": {
+    "day": null,
+    "tg": []
+   },
+   "subs": [],
+   "extra": [
+    {
+     "label": "Dạy lại sáng CN",
+     "day": [
+      "CN",
+      "Sáng"
+     ],
+     "tg": [
+      "Hồng Ngọc"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Super VIP",
+   "note": [
+    "Bận: Phương Thanh; Hồng Ngọc; Phương Trà"
+   ],
+   "b1": {
+    "day": [
+     "T7",
+     ""
+    ],
+    "tg": [
+     {
+      "name": "Nguyễn Hồng Ngọc 7.0",
+      "time": ""
+     },
+     {
+      "name": "Phương Thanh",
+      "time": ""
+     },
+     {
+      "name": "Đức Tâm 6.5",
+      "time": ""
+     }
+    ]
+   },
+   "b2": {
+    "day": [
+     "CN",
+     ""
+    ],
+    "tg": [
+     {
+      "name": "Hà Anh Ngọc",
+      "time": ""
+     },
+     {
+      "name": "Quỳnh Anh 7.0",
+      "time": ""
+     },
+     {
+      "name": "Đức Tâm 6.5",
+      "time": ""
+     }
+    ]
+   },
+   "subs": [
+    {
+     "name": "Nhóm yếu",
+     "b1": [
+      {
+       "name": "Hồng Anh",
+       "time": "19h15-20h15"
+      }
+     ],
+     "b2": [
+      {
+       "name": "Hồng Anh",
+       "time": "18h15-19h15"
+      }
+     ]
+    }
+   ],
+   "extra": []
+  },
+  {
+   "name": "EVIC",
+   "note": [],
+   "b1": {
+    "day": [
+     "T4",
+     ""
+    ],
+    "tg": [
+     {
+      "name": "Lê Anh Thư",
+      "time": ""
+     },
+     {
+      "name": "Vương Thùy Trang 6.5",
+      "time": ""
+     },
+     {
+      "name": "Hà Anh Ngọc",
+      "time": ""
+     },
+     {
+      "name": "Mai Phương Trà",
+      "time": "19h00-21h10"
+     }
+    ]
+   },
+   "b2": {
+    "day": [
+     "CN",
+     ""
+    ],
+    "tg": [
+     {
+      "name": "Phương Thanh",
+      "time": ""
+     },
+     {
+      "name": "Vương Thùy Trang 6.5",
+      "time": ""
+     },
+     {
+      "name": "Hà Anh Ngọc",
+      "time": ""
+     },
+     {
+      "name": "Đỗ Lê Anh Thư FUN",
+      "time": "10h30-11h40"
+     }
+    ]
+   },
+   "subs": [],
+   "extra": []
+  },
+  {
+   "name": "CAN",
+   "note": [],
+   "b1": {
+    "day": [
+     "T5",
+     ""
+    ],
+    "tg": [
+     {
+      "name": "Bảo Anh 6.5",
+      "time": ""
+     },
+     {
+      "name": "Mạnh Toàn 6.5",
+      "time": ""
+     },
+     {
+      "name": "Quỳnh Anh 7.0",
+      "time": ""
+     }
+    ]
+   },
+   "b2": {
+    "day": [
+     "T7",
+     ""
+    ],
+    "tg": [
+     {
+      "name": "Bảo Anh 6.5",
+      "time": ""
+     },
+     {
+      "name": "Mạnh Toàn 6.5",
+      "time": ""
+     },
+     {
+      "name": "Quỳnh Anh 7.0",
+      "time": ""
+     }
+    ]
+   },
+   "subs": [],
+   "extra": []
+  },
+  {
+   "name": "WON",
+   "note": [
+    "(NP)"
+   ],
+   "b1": {
+    "day": [
+     "T4",
+     ""
+    ],
+    "tg": [
+     {
+      "name": "Quỳnh Anh 7.0",
+      "time": ""
+     },
+     {
+      "name": "Thu Minh 6.5",
+      "time": ""
+     },
+     {
+      "name": "Thanh Mai 7.0",
+      "time": ""
+     },
+     {
+      "name": "Hà My 7.0",
+      "time": ""
+     }
+    ]
+   },
+   "b2": {
+    "day": [
+     "CN",
+     "Sáng"
+    ],
+    "tg": [
+     {
+      "name": "Quỳnh Anh 7.0",
+      "time": "8h50-10h00"
+     },
+     {
+      "name": "Thu Minh 6.5",
+      "time": ""
+     },
+     {
+      "name": "Thanh Mai 7.0",
+      "time": ""
+     },
+     {
+      "name": "Hà My 7.0",
+      "time": ""
+     }
+    ]
+   },
+   "subs": [],
+   "extra": []
+  },
+  {
+   "name": "WIN-IE",
+   "note": [],
+   "b1": {
+    "day": [
+     "T2",
+     ""
+    ],
+    "tg": []
+   },
+   "b2": {
+    "day": [
+     "T6",
+     ""
+    ],
+    "tg": []
+   },
+   "subs": [],
+   "extra": []
+  },
+  {
+   "name": "BIG",
+   "note": [],
+   "b1": {
+    "day": [
+     "T2",
+     ""
+    ],
+    "tg": [
+     {
+      "name": "Hồng Hạnh",
+      "time": ""
+     },
+     {
+      "name": "Đỗ Lê Anh Thư FUN",
+      "time": ""
+     }
+    ]
+   },
+   "b2": {
+    "day": [
+     "T4",
+     ""
+    ],
+    "tg": [
+     {
+      "name": "Hồng Hạnh",
+      "time": ""
+     },
+     {
+      "name": "Đỗ Lê Anh Thư FUN",
+      "time": ""
+     }
+    ]
+   },
+   "subs": [],
+   "extra": []
+  },
+  {
+   "name": "SUN",
+   "note": [],
+   "b1": {
+    "day": [
+     "T3",
+     ""
+    ],
+    "tg": [
+     {
+      "name": "Nguyễn Hà Linh bạn P Thanh 6.0",
+      "time": ""
+     }
+    ]
+   },
+   "b2": {
+    "day": [
+     "T5",
+     ""
+    ],
+    "tg": [
+     {
+      "name": "Nguyễn Hà Linh bạn P Thanh 6.0",
+      "time": ""
+     }
+    ]
+   },
+   "subs": [],
+   "extra": []
+  },
+  {
+   "name": "HOPE",
+   "note": [],
+   "b1": {
+    "day": [
+     "T4",
+     ""
+    ],
+    "tg": [
+     {
+      "name": "Hồng Anh bạn Bảo Anh Toeic",
+      "time": ""
+     }
+    ]
+   },
+   "b2": {
+    "day": [
+     "T6",
+     ""
+    ],
+    "tg": [
+     {
+      "name": "Hồng Anh bạn Bảo Anh Toeic",
+      "time": ""
+     }
+    ]
+   },
+   "subs": [],
+   "extra": []
+  },
+  {
+   "name": "SMILE",
+   "note": [],
+   "b1": {
+    "day": [
+     "T3",
+     ""
+    ],
+    "tg": [
+     {
+      "name": "Hà Hoàng Anh bạn Phú",
+      "time": ""
+     }
+    ]
+   },
+   "b2": {
+    "day": [
+     "T5",
+     ""
+    ],
+    "tg": [
+     {
+      "name": "Hà Hoàng Anh bạn Phú",
+      "time": ""
+     }
+    ]
+   },
+   "subs": [],
+   "extra": []
+  },
+  {
+   "name": "Good",
+   "note": [],
+   "b1": {
+    "day": [
+     "T2",
+     ""
+    ],
+    "tg": [
+     {
+      "name": "Hà Hoàng Anh bạn Phú 7.0",
+      "time": ""
+     }
+    ]
+   },
+   "b2": {
+    "day": [
+     "T4",
+     ""
+    ],
+    "tg": [
+     {
+      "name": "Hà Hoàng Anh bạn Phú 7.0",
+      "time": ""
+     }
+    ]
+   },
+   "subs": [],
+   "extra": []
+  },
+  {
+   "name": "CAM",
+   "note": [],
+   "b1": {
+    "day": [
+     "T3",
+     ""
+    ],
+    "tg": [
+     {
+      "name": "Trúc Anh con A Hoằng",
+      "time": ""
+     }
+    ]
+   },
+   "b2": {
+    "day": [
+     "T5",
+     ""
+    ],
+    "tg": [
+     {
+      "name": "Trúc Anh con A Hoằng",
+      "time": ""
+     }
+    ]
+   },
+   "subs": [],
+   "extra": []
+  },
+  {
+   "name": "Mickey",
+   "note": [],
+   "b1": {
+    "day": [
+     "T3",
+     ""
+    ],
+    "tg": [
+     {
+      "name": "Mai Phương Trà",
+      "time": ""
+     }
+    ]
+   },
+   "b2": {
+    "day": [
+     "T5",
+     ""
+    ],
+    "tg": [
+     {
+      "name": "Mai Phương Trà",
+      "time": ""
+     }
+    ]
+   },
+   "subs": [],
+   "extra": []
+  },
+  {
+   "name": "ATH",
+   "note": [],
+   "b1": {
+    "day": [
+     "T6",
+     ""
+    ],
+    "tg": [
+     {
+      "name": "Phan Gia Phú",
+      "time": ""
+     }
+    ]
+   },
+   "b2": {
+    "day": [
+     "CN",
+     "Sáng"
+    ],
+    "tg": [
+     {
+      "name": "Phan Gia Phú",
+      "time": ""
+     }
+    ]
+   },
+   "subs": [],
+   "extra": []
+  }
+ ],
+ "giasu": [
+  {
+   "hs": "Trần Minh Quân",
+   "lop": "KIND",
+   "lich": "Học GS thứ 2 từ 18h30-20h00\n(Thay cho buổi thứ 6-KIND)",
+   "gs": "Mai Phương Trà",
+   "vt": "T1 nhà 60B\n(Phía sau nhà 58)",
+   "ql": "In phiếu lớp KIND\nhôm thứ 6 (Trà gửi/nếu nghỉ trợ giảng vào nhóm KIND/hoặc gọi cô Tân)",
+   "days": [
+    "T2"
+   ]
+  },
+  {
+   "hs": "Đào Hữu Anh Quân",
+   "lop": "WON",
+   "lich": "Học GS thứ 7 từ 20h00-21h30\n(Thay cho buổi thứ 4 - WON)",
+   "gs": "Thùy Trang",
+   "vt": "T1 nhà 60B\n(Phía sau nhà 58)",
+   "ql": "Trợ giảng chuyên môn in phiếu ở ngoài",
+   "days": [
+    "T7"
+   ]
+  },
+  {
+   "hs": "Nguyễn Bảo Nam",
+   "lop": "SMILE",
+   "lich": "Học GS thứ 2 từ 19h00-20h30",
+   "gs": "Hồng Anh",
+   "vt": "Tại nhà HS",
+   "ql": "Không phải quan tâm",
+   "days": [
+    "T2"
+   ]
+  },
+  {
+   "hs": "HIGH học lại:\nCố định Huy Hoàng;\nLê Quang Vinh",
+   "lop": "",
+   "lich": "Sáng CN: 9h30-11h00",
+   "gs": "Hồng Ngọc",
+   "vt": "T2 nhà 58",
+   "ql": "Chỉ in phát sinh khi TG yêu cầu",
+   "days": [
+    "CN"
+   ]
+  }
+ ],
+ "duadon": [
+  {
+   "hs": "Lan Anh em Tuấn Anh B",
+   "lop": "SKY",
+   "lich": "Thứ 2 và Thứ 4 học lúc\n18h15-19h45",
+   "chieu": "Cả đi và về",
+   "ph": "Vũ Thị Thu Hương",
+   "dt": "091 738 1828",
+   "dc": "32 ngõ 230 Lạc Trung; Đi vào ngõ 230 Lạc Trung . Thấy siêu thị Win thì đi kịch đương xong rẽ phải 5m đến cột điện đầu tiên thì rẽ trái 5m là tới nhà có 4 cánh cửa inox",
+   "days": [
+    "T2",
+    "T4"
+   ],
+   "guess": false
+  },
+  {
+   "hs": "Bảo Phú + Mỹ An",
+   "lop": "CAM + SMILE",
+   "lich": "Thứ 3 và Thứ 5 học lúc\n18h30-20h00",
+   "chieu": "Chỉ đưa đi học",
+   "ph": "Nguyễn Hữu Thịnh/\nĐào Thị Thuỷ",
+   "dt": "098.352.0087\nSố khác 039.651.9487",
+   "dc": "Số 2 ngõ 352 Trương Định;",
+   "days": [
+    "T3",
+    "T5"
+   ],
+   "guess": false
+  },
+  {
+   "hs": "Lê Minh Hà",
+   "lop": "GOLD",
+   "lich": "Thứ 2 và Thứ 4 học lúc\n18h30-20h00",
+   "chieu": "Cả đi và về",
+   "ph": "Lê Minh Hà",
+   "dt": "038 996 7035",
+   "dc": "Số 7 ngõ 70 phố 8/3 a",
+   "days": [
+    "T2",
+    "T4"
+   ],
+   "guess": false
+  },
+  {
+   "hs": "Uyên Nhi",
+   "lop": "HIGH",
+   "lich": "Thứ từ 18h00-20h45",
+   "chieu": "Chỉ đưa lúc về",
+   "ph": "",
+   "dt": "094.627.0613",
+   "dc": "Ra bến xe bus Bạch Mai",
+   "days": [
+    "T2"
+   ],
+   "guess": true
+  }
+ ],
+ "grab": [
+  {
+   "hs": "Minh Đức + Mỹ Tâm",
+   "lop": "KIND + HOPE",
+   "lich": "",
+   "chieu": "",
+   "ph": "",
+   "dt": "",
+   "dc": "Số 8 ngách 11b ngõ 70 thanh lân",
+   "days": [
+    "T4",
+    "T6"
+   ],
+   "guess": false,
+   "byday": {
+    "T6": [
+     "KIND",
+     "HOPE"
+    ],
+    "T4": [
+     "HOPE"
+    ]
+   }
+  },
+  {
+   "hs": "Dương Kiều Trang",
+   "lop": "MOON",
+   "lich": "",
+   "chieu": "",
+   "ph": "",
+   "dt": "",
+   "dc": "9 ngõ 75 giải phóng",
+   "days": [],
+   "guess": false,
+   "byday": {}
+  },
+  {
+   "hs": "Huy Hoàng",
+   "lop": "HIGH",
+   "lich": "",
+   "chieu": "",
+   "ph": "",
+   "dt": "",
+   "dc": "31 Hàng Bài",
+   "days": [
+    "T2"
+   ],
+   "guess": false,
+   "byday": {
+    "T2": [
+     "HIGH"
+    ]
+   }
+  }
+ ],
+ "food": {
+  "T2": [
+   {
+    "session": "",
+    "lop": "High",
+    "gio": "19h00-19h15",
+    "menu": [
+     {
+      "tuan": "Tuần 1",
+      "mon": "Bánh gà ràn pho mai"
+     },
+     {
+      "tuan": "Tuần 2",
+      "mon": "Khoai Tây"
+     },
+     {
+      "tuan": "Tuần 3",
+      "mon": "Thịt xiên"
+     },
+     {
+      "tuan": "Tuần 4",
+      "mon": "Bánh Bông Lan Solite"
+     }
+    ]
+   }
+  ],
+  "T3": [
+   {
+    "session": "",
+    "lop": "Boss",
+    "gio": "18h45-19h00",
+    "menu": [
+     {
+      "tuan": "Tuần 1",
+      "mon": "Bánh gà ràn pho mai"
+     },
+     {
+      "tuan": "Tuần 2",
+      "mon": "Khoai Tây"
+     },
+     {
+      "tuan": "Tuần 3",
+      "mon": "Thịt xiên"
+     },
+     {
+      "tuan": "Tuần 4",
+      "mon": "Khoai Tây"
+     }
+    ]
+   }
+  ],
+  "T4": [
+   {
+    "session": "",
+    "lop": "Vic",
+    "gio": "18h45-19h00",
+    "menu": [
+     {
+      "tuan": "Tuần 1",
+      "mon": "Bánh gà rán pho mai"
+     },
+     {
+      "tuan": "Tuần 2",
+      "mon": "Khoai Tây"
+     },
+     {
+      "tuan": "Tuần 3",
+      "mon": "Thịt xiên"
+     },
+     {
+      "tuan": "Tuần 4",
+      "mon": "Caramen"
+     }
+    ]
+   }
+  ],
+  "T5": [
+   {
+    "session": "",
+    "lop": "Boss",
+    "gio": "18h45-19h00",
+    "menu": [
+     {
+      "tuan": "Tuần 1",
+      "mon": "Bánh Bông Lan Solite"
+     },
+     {
+      "tuan": "Tuần 2",
+      "mon": "Xúc Xích"
+     },
+     {
+      "tuan": "Tuần 3",
+      "mon": "Su kem"
+     },
+     {
+      "tuan": "Tuần 4",
+      "mon": "Caramen"
+     }
+    ]
+   }
+  ],
+  "T6": [],
+  "T7": [
+   {
+    "session": "",
+    "lop": "SV",
+    "gio": "18h45-19h00",
+    "menu": [
+     {
+      "tuan": "Tuần 1",
+      "mon": "Bánh gà ràn pho mai"
+     },
+     {
+      "tuan": "Tuần 2",
+      "mon": "Khoai Tây"
+     },
+     {
+      "tuan": "Tuần 3",
+      "mon": "Thịt xiên"
+     },
+     {
+      "tuan": "Tuần 4",
+      "mon": "Caramen"
+     }
+    ]
+   }
+  ],
+  "CN": [
+   {
+    "session": "Sáng",
+    "lop": "Vic",
+    "gio": "",
+    "menu": [
+     {
+      "tuan": "Tuần 1",
+      "mon": "Bánh Bông Lan Solite"
+     },
+     {
+      "tuan": "Tuần 2",
+      "mon": "Xúc Xích"
+     },
+     {
+      "tuan": "Tuần 3",
+      "mon": "Bánh gà rán pho mai"
+     },
+     {
+      "tuan": "Tuần 4",
+      "mon": "Su kem"
+     }
+    ]
+   },
+   {
+    "session": "Chiều",
+    "lop": "SV",
+    "gio": "17h45-18h00",
+    "menu": [
+     {
+      "tuan": "Tuần 1",
+      "mon": "Bánh Bông Lan Solite"
+     },
+     {
+      "tuan": "Tuần 2",
+      "mon": "Xúc Xích"
+     },
+     {
+      "tuan": "Tuần 3",
+      "mon": "Bánh gà ràn pho mai"
+     },
+     {
+      "tuan": "Tuần 4",
+      "mon": "Su kem"
+     }
+    ]
+   }
+  ]
+ },
+ "suppliers": [
+  {
+   "ten": "Thịt xiên ông Ất phố Bùi Ngọc Dương",
+   "dt": "038.957.7050",
+   "dl": "",
+   "gia": "9k",
+   "phat": "1"
+  },
+  {
+   "ten": "Thịt xiên bà béo Trường Đảng",
+   "dt": "096.166.9162",
+   "dl": "",
+   "gia": "10k",
+   "phat": "1"
+  },
+  {
+   "ten": "Khoai tây phomai",
+   "dt": "",
+   "dl": "",
+   "gia": "10k",
+   "phat": "1"
+  },
+  {
+   "ten": "Hộp bánh bông lan Solite Tạp hóa 133 Hồng Mai",
+   "dt": "",
+   "dl": "20 cái/hộp",
+   "gia": "45K",
+   "phat": "2"
+  },
+  {
+   "ten": "Xúc Xúc xích ponnie",
+   "dt": "",
+   "dl": "5 cái/gói",
+   "gia": "20K",
+   "phat": "2"
+  },
+  {
+   "ten": "Su kem Quỳnh Mai",
+   "dt": "093.451.9651",
+   "dl": "8 cái/hộp",
+   "gia": "15K",
+   "phat": "2"
+  },
+  {
+   "ten": "Caramen Quỳnh Mai",
+   "dt": "098.492.9515",
+   "dl": "",
+   "gia": "",
+   "phat": "1"
+  }
+ ],
+ "fancy": [
+  {
+   "ten": "Trà sữa 1989",
+   "dt": "089.857.0906",
+   "dl": "",
+   "gia": "",
+   "phat": ""
+  },
+  {
+   "ten": "Trà tranh (Tùng nước ép cạnh 1989(",
+   "dt": "088.9976.787",
+   "dl": "",
+   "gia": "",
+   "phat": ""
+  }
+ ],
+ "class_days": {
+  "CLC": [
+   "T3",
+   "T6"
+  ],
+  "BOSS": [
+   "T3",
+   "T5"
+  ],
+  "HIGH": [
+   "T2"
+  ],
+  "SUPER VIP": [
+   "CN",
+   "T7"
+  ],
+  "EVIC": [
+   "CN",
+   "T4"
+  ],
+  "CAN": [
+   "T5",
+   "T7"
+  ],
+  "WON": [
+   "CN",
+   "T4"
+  ],
+  "WIN": [
+   "T2",
+   "T6"
+  ],
+  "WIN-IE": [
+   "T2",
+   "T6"
+  ],
+  "BIG": [
+   "T2",
+   "T4"
+  ],
+  "SUN": [
+   "T3",
+   "T5"
+  ],
+  "HOPE": [
+   "T4",
+   "T6"
+  ],
+  "SMILE": [
+   "T3",
+   "T5"
+  ],
+  "GOOD": [
+   "T2",
+   "T4"
+  ],
+  "CAM": [
+   "T3",
+   "T5"
+  ],
+  "MICKEY": [
+   "T3",
+   "T5"
+  ],
+  "ATH": [
+   "CN",
+   "T6"
+  ],
+  "KIND": [
+   "T6"
+  ]
+ }
+};
+const TABLES = [{"id": "LICH TG", "title": "Lịch Trợ Giảng", "hdr": 1, "rows": [["Buổi", "Chú\ný", "Long bé", "Mạnh\nHùng", "Quang\nTùng", "Khôi\nNguyên", "Buổi", "Hoàng \nLong (lớn)", "Xuân\nBắc\nNgõ 107", "Ninh\nTrang", "Vũ\nQuang Vinh\n1A", "Buổi", "Ca 2"], ["", "", "2008", "1994", "2006", "", "", "2002", "2006", "2007", "2007", "", ""], ["", "", "", "", "", "", "", "", "091.629.5600", "033.813.1698", "", "", ""], ["T2", "(1) Đèo Uyên Nhi xe BUS-HIGH\n(2) Xếp bàn IE nhà 56\nTùng đón Lan Anh (SKY)\nKiểm tra 158", "17h00-20h30\nQLC", "17h00-20h30\nQLC", "17h00-21h45\nQLC", "Rảnh", "T2", "", "17h00-20h30", "", "", "T2", "WIN"], ["T3", "Tùng đón Bảo Phú\nMỹ An (Smile)", "", "17h00-20h30\nQLC", "17h00-21h00\nQLC", "", "T3", "", "", "17h00-20h30\nQLC", "17h00-20h30", "T3", ""], ["T4", "Tùng đón Lan Anh (SKY)", "17h00-21h45\nQLC", "17h00-20h30\nQLC", "17h00-21h00\nQLC", "17h00-20h30", "T4", "", "", "", "", "T4", "WONDER\nBLUE"], ["T5", "Tùng đón Bảo Phú\nMỹ An (Smile)", "17h00-20h30\nQLC", "17h00-20h30\nQLC", "17h00-21h45\nQLC", "", "T5", "", "", "17h00-20h30\nQLC", "", "T5", "CAN\nOCEAN"], ["T6", "(1) Xếp bàn IE nhà 56\n(2) Chú ý nhà 1/158: Có lớp DELTA kiểm tra cửa", "", "17h00-20h30\nQLC", "17h00-21h00\nKIND\nAPOLLO", "17h00-20h30", "T6", "", "", "", "17h00-21h45\nKIND\nAPOLLO", "T6", "WIN\nATHENA\nTRY"], ["T7", "", "17h00-20h30\nQLC", "Rảnh", "17h00-21h45\nQLC", "", "T7", "17h00-20h00\nQL 158", "17h00-20h30\nApollo\nOzone", "17h00-20h30\nApollo\nOzone", "", "T7", "CAN"], ["Sáng\nCN", "", "", "", "7h30-11h45\nQLC", "7h30-11h45\nQLC", "Sáng\nCN", "", "Rảnh", "", "Rảnh", "Sáng\nCN", ""], ["CN", "", "15h00-19h00\nQLC", "", "15h00-19h00\nQLC", "", "CN", "15h00-19h00\nQL 158", "", "", "15h00-19h00\nSVIP", "CN", ""], ["Ghi chú:Hoàng Công thiết kế từ xa 081.997.9700; Hòng máy tính laptop 24h: 096.300.9992 (176 Lê Thanh Nghị). \nHàng in 196 Hồng Mai 091.216.1604. A Hùng hỗ trợ 034.396.9358", "", "", "", "", "", "", "", "", "", "", "", ""]]}, {"id": "TGCM", "title": "TG Chuyên Môn", "hdr": 2, "rows": [["Lớp", "Buổi 1", "", "", "Buổi 2", "", "", "Lớp", "Buổi 1", "", "", "Buổi 2", "", "", "Lớp", "Buổi 1", "", "", "Buổi 2", "", ""], ["", "Tên trợ giảng", "Giờ", "Lương", "Tên trợ giảng", "Giờ", "Lương", "", "Tên trợ giảng", "Giờ", "Lương", "Tên trợ giảng", "Giờ", "Lương", "", "Tên trợ giảng", "Giờ", "Lương", "Tên trợ giảng", "Giờ", "Lương"], ["CLC", "Thứ 3:", "", "", "Thứ 6:", "", "", "CAN", "Thứ 5", "", "", "Thứ 7", "", "", "BIG", "Thứ 2", "", "", "Thứ 4", "", ""], ["", "Phan Gia Phú 6.5", "20h00-21h30", "", "Phan Gia Phú 6.5", "18h15-20h00", "", "", "Bảo Anh 6.5", "", "", "Bảo Anh 6.5", "", "", "", "Hồng Hạnh", "", "", "Hồng Hạnh", "", ""], ["", "Lê Anh Thư", "", "", "Lê Anh Thư", "", "", "", "Mạnh Toàn 6.5", "", "", "Mạnh Toàn 6.5", "", "", "", "Đỗ Lê Anh Thư FUN", "", "", "Đỗ Lê Anh Thư FUN", "", ""], ["", "Nguyễn Hồng Ngọc 7.0", "", "", "Vương Thùy Trang 6.5", "", "", "", "Quỳnh Anh 7.0", "", "", "Quỳnh Anh 7.0", "", "", "SUN", "Thứ 3", "", "", "Thứ 5", "", ""], ["Nhóm yếu", "Mai Phương Trà", "20h30-21h30", "", "Mai Phương Trà", "19h15-20h15", "", "", "", "", "", "", "", "", "", "Nguyễn Hà Linh bạn P Thanh 6.0", "", "", "Nguyễn Hà Linh bạn P Thanh 6.0", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["BOSS", "Thứ 3", "", "", "Thứ 5", "", "", "", "", "", "", "", "", "", "HOPE", "Thứ 4", "", "", "Thứ 6", "", ""], ["", "Vương Thùy Trang 6.5", "", "", "Vương Thùy Trang 6.5", "", "", "WON", "Thứ 4", "", "", "Sáng CN", "", "", "", "Hồng Anh bạn Bảo Anh Toeic", "", "", "Hồng Anh bạn Bảo Anh Toeic", "", ""], ["", "Phan Gia Phú 6.5", "18h15-20h00", "", "Đức Tâm 6.5", "", "", "(NP)", "Quỳnh Anh 7.0", "", "", "Quỳnh Anh 7.0", "8h50-10h00", "", "", "", "", "", "", "", ""], ["", "Đỗ Lê Anh Thư FUN", "", "", "Đỗ Lê Anh Thư FUN", "", "", "", "Thu Minh 6.5", "", "", "Thu Minh 6.5", "", "", "", "", "", "", "", "", ""], ["", "Hà Anh Ngọc", "18h15-20h00", "", "Hà Anh Ngọc", "18h15-20h00", "", "", "Thanh Mai 7.0", "", "", "Thanh Mai 7.0", "", "", "SMILE", "Thứ 3", "", "", "Thứ 5", "", ""], ["", "", "", "", "", "", "", "", "Hà My 7.0", "", "", "Hà My 7.0", "", "", "", "Hà Hoàng Anh bạn Phú", "", "", "Hà Hoàng Anh bạn Phú", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "Good", "Thứ 2", "", "", "Thứ 4", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Hà Hoàng Anh bạn Phú 7.0", "", "", "Hà Hoàng Anh bạn Phú 7.0", "", ""], ["HIGH", "Thứ 2", "", "", "", "", "", "", "", "", "", "", "", "", "CAM", "Thứ 3", "", "", "Thứ 5", "", ""], ["", "Lê Anh Thư", "18h00-21h00", "", "", "", "", "WIN-IE", "Thứ 2", "", "", "T6", "", "", "", "Trúc Anh con A Hoằng", "", "", "Trúc Anh con A Hoằng", "", ""], ["", "Lê Diệp Anh", "18h00-21h00", "", "", "", "", "", "", "", "", "", "", "", "Mickey", "Thứ 3", "", "", "Thứ 5", "", ""], ["", "Phan Gia Phú 6.5", "18h00-21h00", "", "", "", "", "", "", "", "", "", "", "", "", "Mai Phương Trà", "", "", "Mai Phương Trà", "", ""], ["", "Nguyễn Hà Linh bạn Thanh 6.0", "19h10-21h00", "", "", "", "", "", "", "", "", "", "", "", "ATH", "Thứ 6", "", "", "Sáng CN", "", ""], ["", "Trịnh Phương Thanh", "19h10-21h00", "", "", "", "", "", "", "", "", "", "", "", "", "Phan Gia Phú", "", "", "Phan Gia Phú", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "Dạy lại sáng CN", "", "", "Hồng Ngọc", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["Super VIP", "Thứ 7", "", "", "CN", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "Nguyễn Hồng Ngọc 7.0", "", "", "Hà Anh Ngọc", "", "", "GS", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "Phương Thanh", "", "", "Quỳnh Anh 7.0", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "Đức Tâm 6.5", "", "", "Đức Tâm 6.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["Nhóm yếu", "Hồng Anh", "19h15-20h15", "", "Hồng Anh", "18h15-19h15:", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "Bận: Phương Thanh; Hồng Ngọc;\nPhương Trà", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["EVIC", "Thứ 4", "", "", "CN", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "Lê Anh Thư", "", "", "Phương Thanh", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "Vương Thùy Trang 6.5", "", "", "Vương Thùy Trang 6.5", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "Hà Anh Ngọc", "", "", "Hà Anh Ngọc", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "Mai Phương Trà", "19h00-21h10", "", "Đỗ Lê Anh Thư FUN", "10h30-11h40", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""]]}, {"id": "Đua Đón", "title": "Đưa Đón", "hdr": 1, "rows": [["Học Sinh", "Lớp", "Lịch", "Số chiều", "Phụ huynh", "ĐT", "Địa chỉ"], ["Lan Anh em Tuấn Anh B", "SKY", "Thứ 2 và Thứ 4 học lúc\n18h15-19h45", "Cả đi và về", "Vũ Thị Thu Hương", "091 738 1828", "32 ngõ 230 Lạc Trung; Đi vào ngõ 230 Lạc Trung . Thấy siêu thị Win thì đi kịch đương xong rẽ phải 5m đến cột điện đầu tiên thì rẽ trái 5m là tới nhà có 4 cánh cửa inox"], ["Bảo Phú + Mỹ An", "CAM + SMILE", "Thứ 3 và Thứ 5 học lúc\n18h30-20h00", "Chỉ đưa đi học", "Nguyễn Hữu Thịnh/\nĐào Thị Thuỷ", "098.352.0087\nSố khác 039.651.9487", "Số 2 ngõ 352 Trương Định;"], ["Lê Minh Hà", "GOLD", "Thứ 2 và Thứ 4 học lúc\n18h30-20h00", "Cả đi và về", "Lê Minh Hà", "038 996 7035", "Số 7 ngõ 70 phố 8/3 a"], ["Uyên Nhi", "HIGH", "Thứ từ 18h00-20h45", "Chỉ đưa lúc về", "", "094.627.0613", "Ra bến xe bus Bạch Mai"], ["", "", "", "", "", "", ""], ["", "", "", "", "", "", ""], ["Đặt Grab khi PH gọi", "", "", "", "", "", ""], ["Minh Đức + Mỹ Tâm", "KIND + HOPE", "", "", "", "", "Số 8 ngách 11b ngõ 70 thanh lân"], ["Dương Kiều Trang", "MOON", "", "", "", "", "9 ngõ 75 giải phóng"], ["Huy Hoàng", "HIGH", "", "", "", "", "31 Hàng Bài"]]}, {"id": "Gia sư", "title": "Gia Sư", "hdr": 1, "rows": [["Học Sinh", "Lớp", "Lịch", "Gia sư", "Vị trí", "Quản lý"], ["Trần Minh Quân", "KIND", "Học GS thứ 2 từ 18h30-20h00\n(Thay cho buổi thứ 6-KIND)", "Mai Phương Trà", "T1 nhà 60B\n(Phía sau nhà 58)", "In phiếu lớp KIND\nhôm thứ 6 (Trà gửi/nếu nghỉ trợ giảng vào nhóm KIND/hoặc gọi cô Tân)"], ["Đào Hữu Anh Quân", "WON", "Học GS thứ 7 từ 20h00-21h30\n(Thay cho buổi thứ 4 - WON)", "Thùy Trang", "T1 nhà 60B\n(Phía sau nhà 58)", "Trợ giảng chuyên môn in phiếu ở ngoài"], ["Nguyễn Bảo Nam", "SMILE", "Học GS thứ 2 từ 19h00-20h30", "Hồng Anh", "Tại nhà HS", "Không phải quan tâm"], ["HIGH học lại:\nCố định Huy Hoàng;\nLê Quang Vinh", "", "Sáng CN: 9h30-11h00", "Hồng Ngọc", "T2 nhà 58", "Chỉ in phát sinh khi TG yêu cầu"]]}, {"id": "Do An", "title": "Đồ Ăn", "hdr": 1, "rows": [["Lớp", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 7", "sáng CN", "chiều CN", ""], ["", "High", "Boss", "Vic", "Boss", "SV", "Vic", "SV", ""], ["Giờ lấy", "19h00-1\n9h15", "18h45-\n19h00", "18h45-\n19h00", "18h45-\n19h00", "18h45-\n19h00", "", "17h45-\n18h00", ""], ["Tuần 1", "Bánh gà \nràn pho mai", "Bánh gà \nràn pho mai", "Bánh gà \nrán pho mai", "Bánh Bông Lan\nSolite", "Bánh gà \nràn pho mai", "Bánh Bông Lan\nSolite", "Bánh Bông Lan\nSolite", ""], ["Tuần 2", "Khoai \nTây", "Khoai \nTây", "Khoai \nTây", "Xúc\nXích", "Khoai \nTây", "Xúc\nXích", "Xúc\nXích", ""], ["Tuần 3", "Thịt xiên", "Thịt xiên", "Thịt xiên", "Su kem", "Thịt xiên", "Bánh gà \nrán pho mai", "Bánh gà \nràn pho mai", ""], ["Tuần 4", "Bánh Bông Lan\nSolite", "Khoai \nTây", "Caramen", "Caramen", "Caramen", "Su kem", "Su kem", ""], ["", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "ĐT", "Định lg", "Giá", "Phát"], ["", "Thịt xiên ông Ất phố Bùi Ngọc Dương", "", "", "", "038.957.7050", "", "9k", "1"], ["", "Thịt xiên bà béo Trường Đảng", "", "", "", "096.166.9162", "", "10k", "1"], ["", "Khoai tây phomai", "", "", "", "", "", "10k", "1"], ["", "Hộp bánh bông lan Solite Tạp hóa 133 Hồng Mai", "", "", "", "", "20 cái/hộp", "45K", "2"], ["", "Xúc Xúc xích ponnie", "", "", "", "", "5 cái/gói", "20K", "2"], ["", "Su kem Quỳnh Mai", "", "", "", "093.451.9651", "8 cái/hộp", "15K", "2"], ["", "Caramen Quỳnh Mai", "", "", "", "098.492.9515", "", "", "1"], ["", "", "", "", "", "", "", "", ""], ["", "Món xịn", "", "", "", "", "", "", ""], ["", "Trà sữa 1989", "", "", "", "089.857.0906", "", "", ""], ["", "Trà tranh (Tùng nước ép cạnh 1989(", "", "", "", "088.9976.787", "", "", ""]]}];
+const DAYS=[["T2","Thứ 2"],["T3","Thứ 3"],["T4","Thứ 4"],["T5","Thứ 5"],["T6","Thứ 6"],["T7","Thứ 7"],["CN","Chủ nhật"]];
+const daysEl=document.getElementById('days'), main=document.getElementById('main'), q=document.getElementById('q');
+
+// ---- dates of the current week
+const now=new Date(); const wd=(now.getDay()+6)%7; // 0=Mon
+const todayKey=DAYS[wd][0];
+const monday=new Date(now); monday.setDate(now.getDate()-wd);
+const dateOf=i=>{const d=new Date(monday);d.setDate(monday.getDate()+i);return d.getDate()+'/'+(d.getMonth()+1);};
+const weekOfMonth=Math.min(4,Math.ceil(now.getDate()/7));
+
+let view=location.hash.slice(1)||todayKey, rawTab=TABLES[0].id;
+
+const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const tel=h=>h.replace(/(0\d{2}[.\s]?\d{3,4}[.\s]?\d{3,4})/g,m=>{const n=m.replace(/[.\s]/g,'');return /^\d{10}$/.test(n)?`<a class="tel" href="tel:${n}">📞 ${m}</a>`:m;});
+const t=s=>tel(esc(s)).replace(/\n/g,'<br>');
+const sess=s=>s?`<span class="sess">${s}</span>`:'';
+const card=(icon,title,n,body,cls='')=>`<div class="card ${cls}"><h3>${icon} ${title}${n!==null?`<span class="n">${n}</span>`:''}</h3><div class="body">${body}</div></div>`;
+const none=s=>`<div class="none">${s}</div>`;
+const personInfo=Object.fromEntries(D.persons.map(p=>[p.name,p]));
+
+function renderNav(){
+  daysEl.innerHTML=DAYS.map(([k,n],i)=>`<button data-v="${k}" class="${view===k?'active':''}">${k===todayKey?'<span class="today">HÔM NAY</span>':''}<b>${n}</b><small>${dateOf(i)}</small></button>`).join('')
+   +`<div class="sep"></div><button data-v="info" class="alt ${view==='info'?'active':''}"><b>ℹ️</b><small>Thông tin chung</small></button>`
+   +`<button data-v="raw" class="alt ${view==='raw'?'active':''}"><b>📑</b><small>Bảng gốc</small></button>`;
+  q.classList.toggle('hidden',view!=='raw');
+}
+
+// ================= DAY VIEW =================
+function renderDay(day){
+  const name=DAYS.find(d=>d[0]===day)[1];
+  const lich=D.lich[day]||[];
+  // Notes
+  const notes=lich.flatMap(s=>s.notes.map(n=>sess(day==='CN'?s.session:'')+t(n)));
+  // TG quản lý
+  let tgRows='',nWork=0,free=[],ca2=[];
+  lich.forEach(s=>{
+    s.work.forEach(w=>{nWork++;const p=personInfo[w.name]||{};
+      tgRows+=`<tr><td class="who">${esc(w.name)}${p.phone?`<small>${tel(esc(p.phone))}</small>`:''}</td><td>${day==='CN'?sess(s.session):''}<span class="time">${esc(w.time)}</span></td><td>${w.role?w.role.split(' · ').map(r=>`<span class="role">${esc(r)}</span>`).join(''):''}</td></tr>`;});
+    free.push(...s.free.map(f=>(day==='CN'?s.session+': ':'')+f)); ca2.push(...s.ca2);
+  });
+  let tgBody=tgRows?`<table class="list">${tgRows}</table>`:none('Không có trợ giảng quản lý đi làm');
+  if(free.length) tgBody+=`<div class="sub">Rảnh</div>`+free.map(f=>`<span class="chip free">${esc(f)}</span>`).join('');
+
+  // Classes (TGCM)
+  let clsHtml='',nCls=0;
+  D.classes.forEach(c=>{
+    [['b1','Buổi 1'],['b2','Buổi 2']].forEach(([b,label],bi)=>{
+      const bd=c[b]; if(!bd.day||bd.day[0]!==day) return; nCls++;
+      const subs=c.subs.map(s=>{const l=s[b];return l.length?`<div class="grp"><b>${esc(s.name)}:</b> ${l.map(x=>esc(x.name)+(x.time?` <span class="time">${esc(x.time)}</span>`:'')).join(', ')}</div>`:''}).join('');
+      clsHtml+=`<div class="cls"><div class="cn"><b>${esc(c.name)}</b> <span class="b ${bi?'b2':''}">${label}</span>${sess(bd.day[1])}</div>`
+        +(bd.tg.length?`<ul>${bd.tg.map(x=>`<li>${esc(x.name)}${x.time?` <span class="time">${esc(x.time)}</span>`:''}</li>`).join('')}</ul>`:none('Chưa xếp trợ giảng'))
+        +subs+c.note.map(n=>`<div class="nt">⚠ ${esc(n)}</div>`).join('')+`</div>`;
+    });
+    c.extra.forEach(e=>{ if(!e.day||e.day[0]!==day) return; nCls++;
+      clsHtml+=`<div class="cls"><div class="cn"><b>${esc(c.name)}</b> <span class="b ex">${esc(e.label)}</span></div><ul>${e.tg.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`;});
+  });
+  let clsBody=clsHtml?`<div class="classes">${clsHtml}</div>`:none('Không có lớp nào trong bảng TGCM');
+  if(ca2.length) clsBody+=`<div class="sub">Ca 2 (theo Lịch TG)</div>`+ca2.map(c=>`<span class="chip ca2">${esc(c)}</span>`).join('');
+
+  // Đưa đón
+  let dd='',nDD=0;
+  D.duadon.filter(x=>x.days.includes(day)).forEach(x=>{nDD++;
+    dd+=`<div class="item"><div class="t"><b>${esc(x.hs)}</b><span class="lop">${esc(x.lop)}</span><span class="tag go">${esc(x.chieu)}</span>${x.guess?'<span class="tag warn" title="Sheet ghi: '+esc(x.lich)+'">ngày suy theo lịch lớp</span>':''}</div>
+      <div class="kv"><span>Lịch</span><span>${t(x.lich)}</span>${x.ph?`<span>Phụ huynh</span><span>${t(x.ph)}</span>`:''}${x.dt?`<span>ĐT</span><span>${t(x.dt)}</span>`:''}<span>Địa chỉ</span><span>${t(x.dc)}</span></div></div>`;});
+  D.grab.filter(x=>x.days.includes(day)).forEach(x=>{nDD++;
+    dd+=`<div class="item"><div class="t"><b>${esc(x.hs)}</b><span class="lop">${esc(x.lop)}</span><span class="tag grab">🚕 Đặt Grab khi PH gọi</span></div>
+      <div class="kv"><span>Lớp học hôm nay</span><span>${esc(x.byday[day].join(', '))}</span><span>Địa chỉ</span><span>${t(x.dc)}</span></div></div>`;});
+  if(!dd) dd=none('Không có lịch đưa đón');
+
+  // Gia sư
+  let gs='',nGS=0;
+  D.giasu.forEach(x=>{
+    const main_=x.days.includes(day);
+    const m=[...x.lich.matchAll(/buổi thứ\s*(\d)/gi)].map(a=>'T'+a[1]);
+    const replaced=m.includes(day);
+    if(!main_&&!replaced) return; nGS++;
+    gs+=`<div class="item"><div class="t"><b>${t(x.hs.split('\n')[0])}</b>${x.lop?`<span class="lop">${esc(x.lop)}</span>`:''}${replaced&&!main_?'<span class="tag warn">Nghỉ buổi lớp hôm nay → học GS thay</span>':''}</div>
+      <div class="kv">${x.hs.includes('\n')?`<span>Học sinh</span><span>${t(x.hs.split('\n').slice(1).join('\n'))}</span>`:''}<span>Lịch</span><span>${t(x.lich)}</span><span>Gia sư</span><span>${esc(x.gs)}</span><span>Vị trí</span><span>${t(x.vt)}</span><span>Quản lý</span><span>${t(x.ql)}</span></div></div>`;});
+  if(!gs) gs=none('Không có lịch gia sư');
+
+  // Đồ ăn
+  let fd='';
+  (D.food[day]||[]).forEach(f=>{
+    const items=[...new Set(f.menu.map(m=>m.mon))];
+    const shops=D.suppliers.filter(s=>items.some(i=>matchFood(i,s.ten)));
+    fd+=`<div class="food"><div class="t">${sess(f.session)}Lớp <span class="lop">${esc(f.lop)}</span> &nbsp;Giờ lấy: <span class="time">${esc(f.gio||'—')}</span></div>
+      <div class="weeks">${f.menu.map((m,i)=>`<div class="wk ${i+1===weekOfMonth?'cur':''}"><small>${esc(m.tuan)}${i+1===weekOfMonth?' (tuần này?)':''}</small>${esc(m.mon)}</div>`).join('')}</div>
+      ${shops.length?`<div class="shop">🛒 ${shops.map(s=>`<b>${esc(s.ten)}</b>${s.gia?' – '+esc(s.gia):''}${s.dl?' ('+esc(s.dl)+')':''}${s.phat?' – phát '+esc(s.phat):''}${s.dt?' '+tel(esc(s.dt)):''}`).join('<br>🛒 ')}</div>`:''}</div>`;});
+  if(!fd) fd=none('Không phát đồ ăn');
+
+  main.innerHTML=`<div class="dayhead"><h2>${name}</h2>
+     <div class="stat"><b>${nCls}</b>buổi lớp</div><div class="stat"><b>${nWork}</b>TG quản lý</div>
+     <div class="stat"><b>${nDD}</b>đưa đón</div><div class="stat"><b>${nGS}</b>gia sư</div><div class="stat"><b>${(D.food[day]||[]).length}</b>suất đồ ăn</div></div>
+   <div class="grid">
+     ${notes.length?card('⚠️','Việc cần chú ý',null,`<ul>${notes.map(n=>`<li>${n}</li>`).join('')}</ul>`,'warn full'):''}
+     ${card('📚','Lớp học & trợ giảng chuyên môn',nCls,clsBody,'full')}
+     ${card('🧑‍💼','Trợ giảng quản lý (Lịch TG)',nWork,tgBody)}
+     ${card('🚗','Đưa đón',nDD,dd)}
+     ${card('🎓','Gia sư',nGS,gs)}
+     ${card('🍪','Đồ ăn',(D.food[day]||[]).length,fd)}
+   </div>`;
+}
+function matchFood(item,shop){
+  const a=item.toLowerCase(), b=shop.toLowerCase();
+  return [['thịt xiên'],['khoai'],['bông lan'],['xúc'],['su kem'],['caramen']].some(([k])=>a.includes(k)&&b.includes(k));
+}
+
+// ================= INFO VIEW =================
+function renderInfo(){
+  const ppl=`<table class="list">${D.persons.map(p=>`<tr><td class="who">${esc(p.name)}</td><td>${p.year?'Sinh '+esc(p.year):''}</td><td>${tel(esc(p.phone))}</td></tr>`).join('')}</table>`;
+  const unk=D.grab.filter(x=>!x.days.length);
+  const grab=unk.length?unk.map(x=>`<div class="item"><div class="t"><b>${esc(x.hs)}</b><span class="lop">${esc(x.lop)}</span><span class="tag grab">🚕 Đặt Grab khi PH gọi</span></div><div class="kv"><span>Địa chỉ</span><span>${t(x.dc)}</span><span>Ghi chú</span><span>Chưa rõ lịch lớp ${esc(x.lop)}</span></div></div>`).join(''):none('—');
+  const shops=`<table class="list">${D.suppliers.map(s=>`<tr><td class="who">${esc(s.ten)}</td><td>${esc(s.gia)}</td><td>${esc(s.dl)}</td><td>${s.phat?'Phát '+esc(s.phat):''}</td><td>${tel(esc(s.dt))}</td></tr>`).join('')}</table>`
+    +`<div class="sub">Món xịn</div><table class="list">${D.fancy.map(s=>`<tr><td class="who">${esc(s.ten)}</td><td>${tel(esc(s.dt))}</td></tr>`).join('')}</table>`;
+  main.innerHTML=`<div class="dayhead"><h2>ℹ️ Thông tin chung</h2></div><div class="grid">
+    ${card('📞','Liên hệ hỗ trợ',null,D.general_notes.map(n=>`<p style="margin:0;line-height:1.8">${t(n.replace(/^Ghi chú:\s*/,'')).replace(/\.\s/g,'.<br>')}</p>`).join(''),'warn full')}
+    ${card('🧑‍💼','Danh sách trợ giảng quản lý',D.persons.length,ppl)}
+    ${card('🚕','Đặt Grab – chưa rõ ngày',unk.length,grab)}
+    ${card('🛒','Nơi mua đồ ăn',D.suppliers.length,shops,'full')}
+  </div>`;
+}
+
+// ================= RAW TABLE VIEW =================
+function fmt(s,term){
+  let h=esc(s);
+  if(term){const re=new RegExp('('+term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');h=h.replace(re,'<mark>$1</mark>');}
+  h=tel(h);
+  if(/^(Thứ\s*\d:?|T\d|CN|Sáng\s*CN|chiều CN)$/i.test(s.trim().replace(/\n/g,' '))) h=`<span class="day">${h}</span>`;
+  else if(/^Rảnh$/i.test(s.trim())) h=`<span class="free">${h}</span>`;
+  return h;
+}
+function buildTable(sh,term){
+  const rows=sh.rows,n=rows[0].length; let html='<table class="raw"><thead>',shown=0;
+  for(let r=0;r<sh.hdr;r++){html+='<tr>';const row=rows[r];
+    for(let c=0;c<n;c++){let span=1;if(sh.hdr>1&&r===0){while(c+span<n&&!row[c+span]&&rows[1][c+span])span++;}
+      html+=`<th colspan="${span}">${fmt(row[c],term)}</th>`;c+=span-1;}html+='</tr>';}
+  html+='</thead><tbody>';
+  for(let r=sh.hdr;r<rows.length;r++){const row=rows[r],filled=row.filter(x=>x).length;
+    if(!filled){if(!term)html+=`<tr class="gap"><td colspan="${n}"></td></tr>`;continue;}
+    if(term&&!row.some(x=>x.toLowerCase().includes(term.toLowerCase())))continue; shown++;
+    if(filled===1&&row[0]&&row[0].length>40){html+=`<tr><td class="note" colspan="${n}">📝 ${fmt(row[0],term)}</td></tr>`;continue;}
+    html+='<tr>'+row.map((x,i)=>`<td class="${i===0?'first':''}">${fmt(x,term)}</td>`).join('')+'</tr>';}
+  return {html:html+'</tbody></table>'+(term&&!shown?'<div class="none" style="padding:20px">Không tìm thấy</div>':''),shown};
+}
+function renderRaw(){
+  const term=q.value.trim();
+  const tabs=[...TABLES.map(s=>[s.id,s.title]),['__all','Xem tất cả']];
+  const list=rawTab==='__all'?TABLES:TABLES.filter(s=>s.id===rawTab);
+  main.innerHTML=`<div class="subtabs">${tabs.map(([id,n])=>`<button data-raw="${id}" class="${id===rawTab?'active':''}">${n}${term&&id!=='__all'?` (${buildTable(TABLES.find(s=>s.id===id),term).shown})`:''}</button>`).join('')}</div>`
+    +list.map(s=>`<section><h2>${s.title}<span>${s.rows.length-s.hdr} dòng</span></h2><div class="wrap">${buildTable(s,term).html}</div></section>`).join('');
+}
+
+function render(){
+  renderNav();
+  if(view==='raw') renderRaw(); else if(view==='info') renderInfo();
+  else { if(!DAYS.some(d=>d[0]===view)) view=todayKey; renderDay(view); }
+}
+daysEl.addEventListener('click',e=>{const b=e.target.closest('button');if(b){view=b.dataset.v;try{history.replaceState(null,'','#'+view);}catch(_){}render();window.scrollTo(0,0);}});
+main.addEventListener('click',e=>{const b=e.target.closest('button[data-raw]');if(b){rawTab=b.dataset.raw;renderRaw();}});
+q.addEventListener('input',()=>view==='raw'&&renderRaw());
+document.addEventListener('keydown',e=>{if(e.target===q)return;const i=DAYS.findIndex(d=>d[0]===view);if(i<0)return;
+  if(e.key==='ArrowRight'&&i<6){view=DAYS[i+1][0];render();} if(e.key==='ArrowLeft'&&i>0){view=DAYS[i-1][0];render();}});
+window.addEventListener('hashchange',()=>{view=location.hash.slice(1)||todayKey;render();});
+render();
 </script>
 </body>
 </html>

@@ -512,10 +512,14 @@ function parseAll(sheets){
   out.sheet.food=findName(sheets,["doan"]);
   const A=cleanRows(out.sheet.food?sheets[out.sheet.food]:null);
   if(A.length){
-    const cols=[]; A[0].forEach((h,j)=>{const d=dayOf(h); if(d) cols.push([j,d]);});
-    const gioIdx=A.findIndex(r=>norm(r[0]).startsWith("giolay")), gioRow=A[gioIdx]||[];
-    const lopRow=A[1]||[];
-    const weekIdx=A.map((r,i)=>/^tuần/i.test(r[0])?i:-1).filter(i=>i>=0), weekRows=weekIdx.map(i=>A[i]);
+    // Sheet Excel thực tế có thể có 1 hoặc nhiều dòng trống ở đầu.
+    // Tìm dòng chứa các tiêu đề ngày thay vì cố định A[0].
+    const headerIdx=A.findIndex(r=>r.some(h=>dayOf(h)) && r.some(h=>norm(h)==='lop'));
+    const hidx=headerIdx>=0?headerIdx:0;
+    const cols=[]; (A[hidx]||[]).forEach((h,j)=>{const d=dayOf(h); if(d) cols.push([j,d]);});
+    const gioIdx=A.findIndex((r,i)=>i>hidx&&norm(r[0]).startsWith("giolay")), gioRow=A[gioIdx]||[];
+    const lopRow=A[hidx+1]||[];
+    const weekIdx=A.map((r,i)=>i>hidx&&/^tuần/i.test(r[0])?i:-1).filter(i=>i>=0), weekRows=weekIdx.map(i=>A[i]);
     cols.forEach(([j,[day,ses]])=>{
       out.food[day].push({c:j,gioR:gioIdx,weekR:weekIdx,session:ses,lop:lopRow[j]||'',gio:one((gioRow[j]||'').replace(/-\s*\n/g,'-').replace(/\n/g,'')),
         menu:weekRows.map(r=>({tuan:r[0],mon:one(r[j])}))});
